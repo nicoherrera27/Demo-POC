@@ -1,29 +1,56 @@
 <template>
-<div>
-<label class="block mb-2 font-medium">Buscar películas / series</label>
-<div class="flex gap-2">
-  <input v-model="term" @keyup.enter="doSearch" class="flex-1 border
-rounded px-3 py-2" placeholder="Ej: The Matrix" />
-<button @click="doSearch" class="px-4 py-2 rounded bg-sky-600 textwhite">Buscar</button>
-</div>
-</div>
+  <div>
+    <label class="block mb-2 font-medium">Buscar películas / series</label>
+    <div class="flex gap-2">
+      <input 
+        v-model="term"
+        @keyup.enter="doSearch"
+        class="flex-1 border rounded px-3 py-2"
+        placeholder="Ej: The Matrix"
+      />
+      <button 
+        @click="doSearch"
+        class="px-4 py-2 rounded bg-sky-600 text-white"
+      >
+        Buscar
+      </button>
+    </div>
+  </div>
 </template>
+
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref } from 'vue'
+
 export default defineComponent({
-name: 'MovieSearch',
-setup() {
-const term = ref('inception');
-const doSearch = async () => {
-if (!term.value) return;
-const q = new URLSearchParams({ query: term.value, page: '1' });
-const res = await fetch(`/api/tmdb?path=search/movie&query=${q}`);
-const json = await res.json();
-window.dispatchEvent(new CustomEvent('results', { detail: json.results
-|| [] }));
-};
-return { term, doSearch };
-},
-});
+  name: 'MovieSearch',
+  setup() {
+    const term = ref('inception')
+
+    const doSearch = async () => {
+      if (!term.value) return
+
+      const q = new URLSearchParams({ 
+        query: term.value, 
+        page: '1' 
+      })
+
+      const res = await fetch(`/api/tmdb?path=search/movie&query=${q}`)
+      const json = await res.json()
+
+      window.dispatchEvent(
+        new CustomEvent('results', { 
+          detail: json.results || [] 
+        })
+      )
+    }
+
+    return { 
+      term, 
+      doSearch 
+    }
+  }
+})
 </script>
-<style scoped></style>
+
+<style scoped>
+</style>
