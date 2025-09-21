@@ -1,0 +1,62 @@
+---
+import '../styles/global.css';
+import MovieSearch from '../components/MovieSearch.vue';
+import MovieCard from '../components/MovieCard.svelte';
+import MovieChart from '../components/MovieChart.svelte';
+import Watchlist from '../components/Watchlist.tsx';
+import MovieStats from '../components/MovieStats.tsx';
+const API_KEY = import.meta.env.TMDB_API_KEY;
+const query = 'inception';
+
+const res = await fetch(
+  `https://api.themoviedb.org/3/search/movie?${new URLSearchParams({
+    api_key: API_KEY,
+    query,
+    page: '1',
+  })}`
+);
+
+const data = await res.json();
+
+const movies = data.results || [];
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+  </head>
+</html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Astro Movie Dashboard PoC</title>
+
+<body>
+  <div class="container">
+    <h1 class="text-3xl font-bold mb-4">Movie Dashboard PoC</h1>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="col-span-2">
+        <div class="card mb-4">
+          <MovieSearch client:load />
+        </div>
+        <div class="card mb-4">
+          <h2 class="font-semibold mb-2">Resultados</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3
+gap-4">
+            {movies.map((m) => <MovieCard client:load movie={m} />)}
+          </div>
+        </div>
+        <div class="card mb-4">
+          <h2 class="font-semibold mb-2">Evolución (ratings por año)</h2>
+          <MovieChart client:load movies={movies} />
+        </div>
+      </div>
+      <div>
+        <div class="card mb-4">
+          <Watchlist client:load />
+        </div>
+        <div class="card mb-4">
+          <MovieStats client:load movies={movies} />
+        </div>
+      </div>
+    </div>
+  </div>
+</body>

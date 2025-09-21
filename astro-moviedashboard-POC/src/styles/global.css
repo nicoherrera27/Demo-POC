@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+body { @apply bg-gray-50 text-gray-800; }
+.container { max-width: 1100px; margin: 0 auto; padding: 1rem; }
+.card { @apply bg-white rounded-2xl shadow p-4; }
