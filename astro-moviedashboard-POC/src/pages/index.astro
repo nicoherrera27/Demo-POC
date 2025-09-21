@@ -1,11 +1,13 @@
 ---
-// imports al inicio
+// importaciones
+import '../styles/global.css';
 import MovieSearch from '../components/MovieSearch.vue';
 import MoviesList from '../components/MoviesList.svelte';
 import MovieChart from '../components/MovieChart.svelte';
 import Watchlist from '../components/Watchlist.jsx';
 import MovieStats from '../components/MovieStats.jsx';
 
+// SSR fetch inicial directo a TMDB (NO /api/tmdb relativo)
 const query = 'inception';
 const res = await fetch(
   `https://api.themoviedb.org/3/search/movie?${new URLSearchParams({
@@ -19,7 +21,11 @@ const movies = json.results || [];
 ---
 
 <html lang="es">
-  <head> ... </head>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Movie Dashboard PoC</title>
+  </head>
   <body>
     <div class="container">
       <h1 class="text-3xl font-bold mb-4">Movie Dashboard PoC</h1>
@@ -27,19 +33,17 @@ const movies = json.results || [];
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="col-span-2">
           <div class="card mb-4">
-            <!-- Vue search — seguirá emitiendo 'results' -->
             <MovieSearch client:load />
           </div>
 
           <div class="card mb-4">
             <h2 class="font-semibold mb-2">Resultados</h2>
-            <!-- Svelte list se monta en el cliente y responde al evento 'results' -->
             <MoviesList client:load {movies} />
           </div>
 
           <div class="card mb-4">
             <h2 class="font-semibold mb-2">Evolución (ratings por año)</h2>
-            <MovieChart client:load movies={movies} />
+            <MovieChart client:load {movies} />
           </div>
         </div>
 
@@ -49,7 +53,7 @@ const movies = json.results || [];
           </div>
 
           <div class="card mb-4">
-            <MovieStats client:load movies={movies} />
+            <MovieStats client:load {movies} />
           </div>
         </div>
       </div>

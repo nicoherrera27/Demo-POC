@@ -1,10 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import MovieCard from './MovieCard.svelte';
-
   export let movies: any[] = [];
 
-  // local copy that Svelte puede reactivar
   let list = movies.slice();
 
   function handleResults(e: any) {
@@ -13,13 +11,8 @@
   }
 
   onMount(() => {
-    // escuchar búsquedas realizadas por MovieSearch.vue
     window.addEventListener('results', handleResults);
-
-    // cleanup
-    return () => {
-      window.removeEventListener('results', handleResults);
-    };
+    return () => window.removeEventListener('results', handleResults);
   });
 </script>
 
