@@ -1,0 +1,203 @@
+---
+import Layout from '../layouts/Layout.astro';
+import MovieCard from '../components/MovieCard.tsx';
+import SearchComponent from '../components/SearchComponent.vue';
+import TrendingWidget from '../components/TrendingWidget.svelte';
+import StatsWidget from '../components/StatsWidget.tsx';
+import TopRatedSolid from '../components/TopRatedCarrousel.tsx';
+import { tmdbApi } from '../lib/tmdb';
+
+// Fetch data at build time (SSG)
+const [popularMoviesResponse, popularTVResponse] = await Promise.all([
+  tmdbApi.getPopularMovies(),
+  tmdbApi.getPopularTVShows(),
+]);
+
+const popularMovies = popularMoviesResponse.results.slice(0, 6);
+const popularTVShows = popularTVResponse.results.slice(0, 6);
+---
+
+<Layout title="MovieDash - Dashboard de Películas y Series">
+  <!-- Hero Section -->
+  <section
+    class="bg-gradient-to-r from-primary-900 via-purple-900 to-blue-900 rounded-lg p-8 mb-8 text-center"
+  >
+    <h1 class="text-4xl md:text-6xl font-bold text-white mb-4">🎬 MovieDash</h1>
+    <p class="text-xl text-gray-200 mb-6">
+      Demo técnica con Astro + Vue + Svelte + Preact + Solid
+    </p>
+    <div class="flex flex-wrap justify-center gap-4 text-sm">
+      <div class="bg-white bg-opacity-10 px-4 py-2 rounded-full">
+        🏝️ Astro Islands
+      </div>
+      <div class="bg-white bg-opacity-10 px-4 py-2 rounded-full">
+        💧 Hidratación Selectiva
+      </div>
+      <div class="bg-white bg-opacity-10 px-4 py-2 rounded-full">
+        🚀 Múltiples Frameworks
+      </div>
+      <div class="bg-white bg-opacity-10 px-4 py-2 rounded-full">
+        🎯 TypeScript
+      </div>
+    </div>
+  </section>
+
+  <!-- Framework Demonstrations Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    <!-- Vue Component - Search (Client-side interactivity) -->
+    <div>
+      <SearchComponent client:load />
+    </div>
+
+    <!-- Preact Component - Stats (Interactive dashboard) -->
+    <div>
+      <StatsWidget client:load />
+    </div>
+  </div>
+
+  <!-- Svelte Component - Trending Carousel (Auto-updating) -->
+  <div class="mb-8">
+    <TrendingWidget client:load />
+  </div>
+
+  <!-- Solid Component - Top Rated Carousel (Solo cliente) -->
+  <div class="mb-8">
+    <TopRatedSolid client:load />
+  </div>
+
+  <!-- Static Content with React Components (Hydrated on interaction) -->
+  <section class="mb-8">
+    <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+      <h2 class="text-2xl font-bold mb-6 text-primary-400">
+        🔥 Películas Populares (React Components)
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {
+          popularMovies.map((movie) => (
+            <MovieCard item={movie} type="movie" client:visible />
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="mb-8">
+    <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+      <h2 class="text-2xl font-bold mb-6 text-primary-400">
+        📺 Series Populares (React Components)
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {
+          popularTVShows.map((show) => (
+            <MovieCard item={show} type="tv" client:visible />
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Framework Comparison Section -->
+  <section class="mb-8">
+    <div
+      class="bg-gradient-to-r from-gray-800 to-gray-900 p-6 rounded-lg shadow-lg"
+    >
+      <h2 class="text-2xl font-bold mb-6 text-center text-white">
+        🔧 Demostración de Frameworks
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-gray-700 p-4 rounded-lg text-center">
+          <div class="text-3xl mb-2">⚡</div>
+          <h3 class="font-bold text-green-400 mb-2">Vue.js</h3>
+          <p class="text-sm text-gray-300">
+            Componente de búsqueda interactiva con reactividad
+          </p>
+        </div>
+
+        <div class="bg-gray-700 p-4 rounded-lg text-center">
+          <div class="text-3xl mb-2">🎯</div>
+          <h3 class="font-bold text-orange-400 mb-2">Svelte</h3>
+          <p class="text-sm text-gray-300">
+            Widget de tendencias con compilación optimizada
+          </p>
+        </div>
+
+        <div class="bg-gray-700 p-4 rounded-lg text-center">
+          <div class="text-3xl mb-2">⚛️</div>
+          <h3 class="font-bold text-blue-400 mb-2">Preact</h3>
+          <p class="text-sm text-gray-300">
+            Dashboard de estadísticas liviano y eficiente
+          </p>
+        </div>
+
+        <div class="bg-gray-700 p-4 rounded-lg text-center">
+          <div class="text-3xl mb-2">💎</div>
+          <h3 class="font-bold text-blue-500 mb-2">Solid.js</h3>
+          <p class="text-sm text-gray-300">
+            Carrusel de mejor valorados con granular reactivity
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Technical Details -->
+  <section class="mb-8">
+    <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
+      <h2 class="text-2xl font-bold mb-6 text-primary-400">
+        🏗️ Características Técnicas de Astro
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h3 class="text-lg font-semibold text-white mb-3">
+            🏝️ Astro Islands
+          </h3>
+          <ul class="space-y-2 text-sm text-gray-300">
+            <li>• Hidratación selectiva por componente</li>
+            <li>
+              • Diferentes estrategias: <code>client:load</code>, <code
+                >client:visible</code
+              >
+            </li>
+            <li>• Componentes estáticos por defecto</li>
+            <li>• Mejor performance y SEO</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-semibold text-white mb-3">
+            🔧 Multi-Framework
+          </h3>
+          <ul class="space-y-2 text-sm text-gray-300">
+            <li>• Vue.js para búsqueda reactiva</li>
+            <li>• Svelte para widgets optimizados</li>
+            <li>• Preact para componentes livianos</li>
+            <li>• Solid.js para reactividad granular</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  // Add some interactivity for demo purposes
+  console.log('🚀 Astro MovieDash Demo loaded!');
+  console.log('Frameworks loaded:', {
+    Vue: '✅ SearchComponent',
+    Svelte: '✅ TrendingWidget',
+    Preact: '✅ StatsWidget',
+    SolidJS: '✅ TopRatedCarousel',
+    React: '✅ MovieCard components',
+  });
+</script>
+
+<style>
+  code {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    font-family: 'Courier New', monospace;
+  }
+</style>

@@ -1,0 +1,41 @@
+---
+export interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="description"
+      content="Dashboard de películas y series con Astro"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+  </head>
+  <body class="bg-gray-900 text-white min-h-screen">
+    <nav class="bg-gray-800 p-4 shadow-lg">
+      <div class="container mx-auto flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-primary-400">🎬 MovieDash</h1>
+        <div class="text-sm text-gray-400">
+          Demo técnica con Astro + Vue + Svelte + Preact + Solid
+        </div>
+      </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8">
+      <slot />
+    </main>
+
+    <footer class="bg-gray-800 p-4 mt-16">
+      <div class="container mx-auto text-center text-gray-400">
+        <p>Construido con ❤️ usando Astro y múltiples frameworks</p>
+      </div>
+    </footer>
+  </body>
+</html>
