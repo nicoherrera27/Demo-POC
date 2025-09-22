@@ -4,8 +4,9 @@ import MovieCard from '../components/MovieCard.tsx';
 import SearchComponent from '../components/SearchComponent.vue';
 import TrendingWidget from '../components/TrendingWidget.svelte';
 import StatsWidget from '../components/StatsWidget.tsx';
-import TopRatedSolid from '../components/TopRatedCarrousel.tsx';
+import TopRatedSolid from '../components/TopRatedCarrousel.vue';
 import { tmdbApi } from '../lib/tmdb';
+import WatchlistSolid from '../components/WatchlistSolid.tsx';
 
 // Fetch data at build time (SSG)
 const [popularMoviesResponse, popularTVResponse] = await Promise.all([
@@ -63,7 +64,6 @@ const popularTVShows = popularTVResponse.results.slice(0, 6);
   <!-- Solid Component - Top Rated Carousel (Solo cliente) -->
   <div class="mb-8">
     <TopRatedSolid client:load />
-    hola
   </div>
 
   <!-- Static Content with React Components (Hydrated on interaction) -->
@@ -96,6 +96,9 @@ const popularTVShows = popularTVResponse.results.slice(0, 6);
       </div>
     </div>
   </section>
+  <div>
+    <WatchlistSolid client:load />
+  </div>
 
   <!-- Framework Comparison Section -->
   <section class="mb-8">

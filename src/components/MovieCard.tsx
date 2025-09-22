@@ -1,5 +1,5 @@
 import type { Movie, TVShow } from '../types/movies.ts';
-import { IMAGE_BASE_URL } from '../lib/tmdb.ts';
+import { IMAGE_BASE_URL } from '../lib/tmdb';
 
 interface Props {
   item: Movie | TVShow;
@@ -9,6 +9,14 @@ interface Props {
 export default function MovieCard({ item, type }: Props) {
   const title = type === 'movie' ? (item as Movie).title : (item as TVShow).name;
   const releaseDate = type === 'movie' ? (item as Movie).release_date : (item as TVShow).first_air_date;
+
+  const handleAddToWatchlist = () => {
+    // Dispatch evento personalizado para comunicarse con Solid.js
+    const event = new CustomEvent('addToWatchlist', {
+      detail: { item, type }
+    });
+    window.dispatchEvent(event);
+  };
 
   return (
     <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:scale-105">
@@ -28,9 +36,9 @@ export default function MovieCard({ item, type }: Props) {
         <p className="text-gray-400 text-sm mb-2">
           📅 {new Date(releaseDate).getFullYear()}
         </p>
-        <p className="text-gray-300 text-sm line-clamp-3">{item.overview}</p>
+        <p className="text-gray-300 text-sm line-clamp-3 mb-4">{item.overview}</p>
         
-        <div className="mt-4 flex justify-between items-center">
+        <div className="flex justify-between items-center mb-4">
           <span className="text-xs bg-gray-700 px-2 py-1 rounded">
             {type === 'movie' ? '🎬 Película' : '📺 Serie'}
           </span>
@@ -38,6 +46,14 @@ export default function MovieCard({ item, type }: Props) {
             React Component
           </span>
         </div>
+
+        {/* Botón para agregar a watchlist */}
+        <button
+          onClick={handleAddToWatchlist}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-sm font-medium"
+        >
+          ➕ Agregar a Watchlist
+        </button>
       </div>
     </div>
   );
