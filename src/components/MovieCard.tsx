@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'preact/hooks';
 import type { Movie, TVShow } from '../types/movies.ts';
 import { IMAGE_BASE_URL } from '../lib/tmdb';
 
@@ -7,15 +8,87 @@ interface Props {
 }
 
 export default function MovieCard({ item, type }: Props) {
+  const [isInWatchlist, setIsInWatchlist] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
   const title = type === 'movie' ? (item as Movie).title : (item as TVShow).name;
   const releaseDate = type === 'movie' ? (item as Movie).release_date : (item as TVShow).first_air_date;
 
-  const handleAddToWatchlist = () => {
-    // Dispatch evento personalizado para comunicarse con Solid.js
-    const event = new CustomEvent('addToWatchlist', {
-      detail: { item, type }
-    });
-    window.dispatchEvent(event);
+  // Verificar estado inicial - ejecutar inmediatamente
+  useEffect(() => {
+    const checkWatchlistStatus = async () => {
+      try {
+        const { watchlistStore } = await import('../lib/watchlistStore');
+        const inWatchlist = watchlistStore.isInWatchlist(item.id, type);
+        setIsInWatchlist(inWatchlist);
+        console.log('🔍 MovieCard: Initial status for', title, ':', inWatchlist);
+      } catch (error) {
+        console.error('Error checking initial status:', error);
+      }
+    };
+
+    // Verificar inmediatamente
+    checkWatchlistStatus();
+    
+    // También verificar después de un pequeño delay para asegurar que el store esté listo
+    const timeoutId = setTimeout(checkWatchlistStatus, 100);
+    
+    return () => clearTimeout(timeoutId);
+  }, [item.id, type, title]);
+
+  // Escuchar cambios en el store
+  useEffect(() => {
+    let unsubscribe: (() => void) | null = null;
+
+    const setupListener = async () => {
+      try {
+        const { watchlistStore } = await import('../lib/watchlistStore');
+        
+        unsubscribe = watchlistStore.subscribe(() => {
+          const inWatchlist = watchlistStore.isInWatchlist(item.id, type);
+          setIsInWatchlist(inWatchlist);
+          console.log('🔄 MovieCard: Status updated for', title, ':', inWatchlist);
+        });
+      } catch (error) {
+        console.error('Error setting up listener:', error);
+      }
+    };
+
+    setupListener();
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [item.id, type]);
+
+  const handleWatchlistAction = async () => {
+    try {
+      setIsLoading(true);
+      const { watchlistStore } = await import('../lib/watchlistStore');
+      
+      if (isInWatchlist) {
+        // Remover de watchlist
+        console.log('🗑️ MovieCard: Removing from watchlist:', title, type);
+        const success = watchlistStore.removeFromWatchlist(item.id, type);
+        if (success) {
+          console.log('✅ MovieCard: Successfully removed:', title);
+        }
+      } else {
+        // Agregar a watchlist
+        console.log('🎬 MovieCard: Adding to watchlist:', title, type);
+        const success = watchlistStore.addToWatchlist(item, type);
+        if (success) {
+          console.log('✅ MovieCard: Successfully added:', title);
+        } else {
+          console.log('⚠️ MovieCard: Item already in watchlist:', title);
+        }
+      }
+      
+    } catch (error) {
+      console.error('❌ MovieCard: Error with watchlist action:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -47,12 +120,23 @@ export default function MovieCard({ item, type }: Props) {
           </span>
         </div>
 
-        {/* Botón para agregar a watchlist */}
+        {/* Botón para agregar/remover watchlist */}
         <button
-          onClick={handleAddToWatchlist}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-sm font-medium"
+          onClick={handleWatchlistAction}
+          disabled={isLoading}
+          className={`w-full px-4 py-2 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-sm font-medium ${
+            isInWatchlist 
+              ? 'bg-red-600 hover:bg-red-700 text-white' 
+              : 'bg-blue-600 hover:bg-blue-700 text-white'
+          } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
-          ➕ Agregar a Watchlist
+          {isLoading ? (
+            <>🔄 Cargando...</>
+          ) : isInWatchlist ? (
+            <>🗑️ Eliminar de Watchlist</>
+          ) : (
+            <>➕ Agregar a Watchlist</>
+          )}
         </button>
       </div>
     </div>

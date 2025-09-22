@@ -1,53 +1,30 @@
 import { createSignal, createMemo, onMount, onCleanup, For, Show } from 'solid-js';
 import type { Movie, TVShow } from '../types/movies.ts';
-
-export interface WatchlistItem extends Movie {
-  type: 'movie';
-  dateAdded: string;
-  isWatched: boolean;
-}
-
-export interface WatchlistTVItem extends TVShow {
-  type: 'tv';
-  dateAdded: string;
-  isWatched: boolean;
-}
-
-export type WatchlistEntry = WatchlistItem | WatchlistTVItem;
-
-// Store global de la watchlist (simulando un estado compartido)
-const [watchlist, setWatchlist] = createSignal<WatchlistEntry[]>([]);
-
-// Función para agregar a watchlist (exportada para usar en otros componentes)
-export const addToWatchlist = (item: Movie | TVShow, type: 'movie' | 'tv') => {
-  const watchlistItem: WatchlistEntry = {
-    ...item,
-    type,
-    dateAdded: new Date().toISOString(),
-    isWatched: false
-  } as WatchlistEntry;
-
-  setWatchlist(prev => {
-    const exists = prev.find(w => w.id === item.id && w.type === type);
-    if (exists) return prev;
-    return [...prev, watchlistItem];
-  });
-};
-
-// Función para verificar si está en watchlist
-export const isInWatchlist = (id: number, type: 'movie' | 'tv'): boolean => {
-  return watchlist().some(item => item.id === id && item.type === type);
-};
+import { watchlistStore, type WatchlistItem, type WatchlistStats } from '../lib/watchlistStore';
 
 export default function WatchlistSolid() {
-  const [filter, setFilter] = createSignal<'all' | 'unwatched' | 'watched'>('all');
-  const [sortBy, setSortBy] = createSignal<'dateAdded' | 'rating' | 'title'>('dateAdded');
+  const [watchlist, setWatchlist] = createSignal<WatchlistItem[]>([]);
+  const [stats, setStats] = createSignal<WatchlistStats>({
+    total: 0,
+    watched: 0,
+    unwatched: 0,
+    movies: 0,
+    tvShows: 0,
+    avgRating: 0,
+    watchedAvgRating: 0
+  });
+  const [filter, setFilter] = createSignal<'all' | 'unwatched' | 'watched' | 'movie' | 'tv'>('all');
+  const [sortBy, setSortBy] = createSignal<'dateAdded' | 'rating' | 'title' | 'priority'>('dateAdded');
 
-  // Computed values
+  let unsubscribe: (() => void) | null = null;
+
+  // Computed values para filtrado y ordenado
   const filteredItems = createMemo(() => {
     let items = [...watchlist()];
     
-    // Filter
+    console.log('🔍 SolidJS: Filtering items, total:', items.length, 'filter:', filter());
+    
+    // Apply filter
     switch (filter()) {
       case 'watched':
         items = items.filter(item => item.isWatched);
@@ -55,15 +32,29 @@ export default function WatchlistSolid() {
       case 'unwatched':
         items = items.filter(item => !item.isWatched);
         break;
+      case 'movie':
+        items = items.filter(item => item.type === 'movie');
+        break;
+      case 'tv':
+        items = items.filter(item => item.type === 'tv');
+        break;
     }
 
-    // Sort
+    // Apply sorting
     switch (sortBy()) {
       case 'rating':
-        items.sort((a, b) => b.vote_average - a.vote_average);
+        items.sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0));
         break;
       case 'title':
-        items.sort((a, b) => getTitle(a).localeCompare(getTitle(b)));
+        items.sort((a, b) => a.title.localeCompare(b.title));
+        break;
+      case 'priority':
+        const priorityOrder = { high: 3, medium: 2, low: 1 };
+        items.sort((a, b) => {
+          const priorityDiff = priorityOrder[b.priority] - priorityOrder[a.priority];
+          if (priorityDiff !== 0) return priorityDiff;
+          return new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime();
+        });
         break;
       case 'dateAdded':
       default:
@@ -71,55 +62,85 @@ export default function WatchlistSolid() {
         break;
     }
 
+    console.log('📋 SolidJS: Filtered items:', items.length);
     return items;
   });
 
-  const stats = createMemo(() => {
-    const items = watchlist();
-    const total = items.length;
-    const watched = items.filter(item => item.isWatched).length;
-    const unwatched = total - watched;
-    const avgRating = items.length > 0 
-      ? items.reduce((sum, item) => sum + item.vote_average, 0) / items.length 
-      : 0;
-    
-    const watchedAvgRating = watched > 0
-      ? items.filter(item => item.isWatched).reduce((sum, item) => sum + item.vote_average, 0) / watched
-      : 0;
-
-    return {
-      total,
-      watched,
-      unwatched,
-      avgRating,
-      watchedAvgRating,
-      movies: items.filter(item => item.type === 'movie').length,
-      tvShows: items.filter(item => item.type === 'tv').length
-    };
-  });
-
-  const getTitle = (item: WatchlistEntry): string => {
-    return 'title' in item ? item.title : item.name;
-  };
-
-  const getYear = (item: WatchlistEntry): string => {
-    const date = 'release_date' in item ? item.release_date : item.first_air_date;
-    return date ? new Date(date).getFullYear().toString() : 'N/A';
-  };
-
+  // Actions
   const toggleWatched = (id: number, type: 'movie' | 'tv') => {
-    setWatchlist(prev => 
-      prev.map(item => 
-        item.id === id && item.type === type 
-          ? { ...item, isWatched: !item.isWatched }
-          : item
-      )
-    );
+    watchlistStore.toggleWatched(id, type);
   };
 
   const removeFromWatchlist = (id: number, type: 'movie' | 'tv') => {
-    setWatchlist(prev => prev.filter(item => !(item.id === id && item.type === type)));
+    watchlistStore.removeFromWatchlist(id, type);
   };
+
+  const setPriority = (id: number, type: 'movie' | 'tv', priority: 'high' | 'medium' | 'low') => {
+    watchlistStore.setPriority(id, type, priority);
+  };
+
+  const updateNotes = (id: number, type: 'movie' | 'tv', notes: string) => {
+    watchlistStore.updateNotes(id, type, notes);
+  };
+
+  // Lifecycle
+  onMount(() => {
+    console.log('🚀 SolidJS WatchlistSolid component mounted');
+    
+    // Cargar datos inmediatamente desde el store
+    const loadInitialData = () => {
+      const currentWatchlist = watchlistStore.getWatchlist();
+      const currentStats = watchlistStore.getStats();
+      
+      console.log('📊 SolidJS: Loading initial data:', {
+        total: currentStats.total,
+        items: currentWatchlist.length,
+        watchlist: currentWatchlist.map(i => ({ id: i.id, title: i.title, type: i.type }))
+      });
+      
+      setWatchlist([...currentWatchlist]);
+      setStats({ ...currentStats });
+    };
+    
+    // Cargar datos inmediatamente
+    loadInitialData();
+
+    // Suscribirse a cambios futuros
+    unsubscribe = watchlistStore.subscribe((newWatchlist: WatchlistItem[], newStats: WatchlistStats) => {
+      console.log('🔄 SolidJS: Store updated via subscription:', {
+        total: newStats.total,
+        items: newWatchlist.length
+      });
+      setWatchlist([...newWatchlist]);
+      setStats({ ...newStats });
+    });
+
+    // También escuchar eventos del storage por si hay cambios en otras pestañas
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'movieDashWatchlist') {
+        console.log('🔄 SolidJS: Storage changed, reloading data');
+        loadInitialData();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Cleanup para el evento de storage
+    const originalCleanup = unsubscribe;
+    unsubscribe = () => {
+      if (originalCleanup) originalCleanup();
+      window.removeEventListener('storage', handleStorageChange);
+    };
+
+    console.log('✅ SolidJS: Successfully connected to watchlist store');
+  });
+
+  onCleanup(() => {
+    console.log('🧹 SolidJS WatchlistSolid component cleanup');
+    if (unsubscribe) {
+      unsubscribe();
+    }
+  });
 
   return (
     <div class="bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 p-6 rounded-lg shadow-lg">
@@ -137,6 +158,8 @@ export default function WatchlistSolid() {
             <option value="all">Todas ({stats().total})</option>
             <option value="unwatched">Sin ver ({stats().unwatched})</option>
             <option value="watched">Vistas ({stats().watched})</option>
+            <option value="movie">🎬 Películas ({stats().movies})</option>
+            <option value="tv">📺 Series ({stats().tvShows})</option>
           </select>
           
           <select 
@@ -145,6 +168,7 @@ export default function WatchlistSolid() {
             class="bg-gray-700 text-white px-3 py-1 rounded text-sm"
           >
             <option value="dateAdded">Fecha agregada</option>
+            <option value="priority">Prioridad</option>
             <option value="rating">Rating</option>
             <option value="title">Título</option>
           </select>
@@ -152,7 +176,7 @@ export default function WatchlistSolid() {
       </div>
 
       {/* Stats Panel */}
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
         <div class="bg-black bg-opacity-30 p-4 rounded-lg text-center">
           <div class="text-2xl font-bold text-blue-300">{stats().total}</div>
           <div class="text-xs text-gray-300">Total</div>
@@ -164,14 +188,25 @@ export default function WatchlistSolid() {
         </div>
         
         <div class="bg-black bg-opacity-30 p-4 rounded-lg text-center">
-          <div class="text-2xl font-bold text-yellow-300">{stats().avgRating.toFixed(1)}</div>
+          <div class="text-2xl font-bold text-yellow-300">{stats().unwatched}</div>
+          <div class="text-xs text-gray-300">Pendientes</div>
+        </div>
+        
+        <div class="bg-black bg-opacity-30 p-4 rounded-lg text-center">
+          <div class="text-2xl font-bold text-purple-300">{stats().avgRating.toFixed(1)}</div>
           <div class="text-xs text-gray-300">★ Promedio</div>
         </div>
         
         <div class="bg-black bg-opacity-30 p-4 rounded-lg text-center">
-          <div class="text-2xl font-bold text-purple-300">{stats().watchedAvgRating.toFixed(1)}</div>
+          <div class="text-2xl font-bold text-pink-300">{stats().watchedAvgRating.toFixed(1)}</div>
           <div class="text-xs text-gray-300">★ Vistas</div>
         </div>
+      </div>
+
+      {/* Debug Panel (solo desarrollo) */}
+      <div class="mb-4 p-3 bg-gray-800 bg-opacity-50 rounded text-xs text-gray-400 border border-gray-600">
+        🔍 Debug: Total items: {stats().total}, Filtered: {filteredItems().length}, Filter: {filter()}, Sort: {sortBy()}<br/>
+        Raw watchlist: {JSON.stringify(watchlist().map(i => ({ id: i.id, title: i.title, type: i.type })))}
       </div>
 
       {/* Content */}
@@ -179,15 +214,18 @@ export default function WatchlistSolid() {
         when={filteredItems().length > 0} 
         fallback={
           <div class="text-center py-12">
+            <div class="text-4xl mb-4">
+              {stats().total === 0 ? "📭" : "🔍"}
+            </div>
             <div class="text-gray-400 text-lg mb-4">
               {stats().total === 0 
-                ? "📭 Tu watchlist está vacía" 
-                : `🔍 No hay elementos para "${filter()}"`}
+                ? "Tu watchlist está vacía" 
+                : `No hay elementos para el filtro "${filter()}"`}
             </div>
             <div class="text-gray-500 text-sm">
               {stats().total === 0 
                 ? "Agrega películas y series usando los botones ➕ en otros componentes"
-                : "Prueba cambiando el filtro arriba"}
+                : "Prueba cambiando el filtro o agregando más contenido"}
             </div>
           </div>
         }
@@ -197,48 +235,77 @@ export default function WatchlistSolid() {
             {(item) => (
               <div class={`bg-black bg-opacity-40 rounded-lg p-4 border-l-4 ${
                 item.isWatched ? 'border-green-500' : 'border-yellow-500'
-              } transition-all hover:bg-opacity-60`}>
+              } transition-all hover:bg-opacity-60 border border-gray-700`}>
                 <div class="flex gap-3">
                   <div class="flex-shrink-0">
                     <Show 
                       when={item.poster_path}
                       fallback={
                         <div class="w-16 h-24 bg-gray-600 rounded flex items-center justify-center">
-                          <span class="text-gray-400 text-xs">No img</span>
+                          <span class="text-2xl">{item.type === 'movie' ? '🎬' : '📺'}</span>
                         </div>
                       }
                     >
                       <img
                         src={`https://image.tmdb.org/t/p/w92${item.poster_path}`}
-                        alt={getTitle(item)}
+                        alt={item.title}
                         class="w-16 h-24 object-cover rounded"
                       />
                     </Show>
                   </div>
                   
                   <div class="flex-1 min-w-0">
-                    <h3 class="text-white font-semibold text-sm mb-1 truncate">
-                      {getTitle(item)}
-                    </h3>
-                    
-                    <div class="flex items-center gap-2 mb-2 text-xs">
-                      <span class="text-gray-400">📅 {getYear(item)}</span>
-                      <span class="text-yellow-400">★ {item.vote_average.toFixed(1)}</span>
-                      <span class="text-gray-400">
-                        {item.type === 'movie' ? '🎬' : '📺'}
-                      </span>
+                    <div class="flex items-start justify-between mb-2">
+                      <div class="flex-1 min-w-0">
+                        <h3 class="text-white font-semibold text-sm mb-1 truncate">
+                          {item.title}
+                        </h3>
+                        
+                        <div class="flex items-center gap-3 text-xs text-gray-400 mb-2">
+                          <span>📅 {item.year}</span>
+                          <span>⭐ {item.vote_average.toFixed(1)}</span>
+                          <span>{item.type === 'movie' ? '🎬' : '📺'}</span>
+                          <span class={item.isWatched ? 'text-green-400' : 'text-yellow-400'}>
+                            {item.isWatched ? '✓ Vista' : '⏳ Pendiente'}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <select 
+                        value={item.priority}
+                        onchange={(e) => setPriority(item.id, item.type, e.target.value as any)} 
+                        class="bg-gray-700 text-white text-xs rounded px-2 py-1 border border-gray-600"
+                      >
+                        <option value="low">🟢 Baja</option>
+                        <option value="medium">⚡ Media</option>
+                        <option value="high">🔥 Alta</option>
+                      </select>
                     </div>
                     
-                    <div class="text-xs text-gray-400 mb-3">
-                      Agregado: {new Date(item.dateAdded).toLocaleDateString()}
+                    <div class="mb-3">
+                      <textarea 
+                        placeholder="Agregar notas..." 
+                        class="w-full bg-gray-700 text-white text-xs rounded px-2 py-1 border border-gray-600 resize-none h-12"
+                        value={item.notes || ''}
+                        onblur={(e) => updateNotes(item.id, item.type, e.target.value)}
+                      />
                     </div>
                     
-                    <div class="flex gap-1">
+                    <div class="flex items-center justify-between">
+                      <div class="text-xs text-gray-500">
+                        Agregado: {new Date(item.dateAdded).toLocaleDateString()}
+                        {item.dateWatched && (
+                          <span> • Visto: {new Date(item.dateWatched).toLocaleDateString()}</span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div class="flex gap-2 mt-2">
                       <button
                         onClick={() => toggleWatched(item.id, item.type)}
                         class={`px-2 py-1 rounded text-xs transition-colors ${
-                          item.isWatched
-                            ? 'bg-green-600 hover:bg-green-700 text-white'
+                          item.isWatched 
+                            ? 'bg-green-600 hover:bg-green-700 text-white' 
                             : 'bg-yellow-600 hover:bg-yellow-700 text-white'
                         }`}
                       >
@@ -247,7 +314,7 @@ export default function WatchlistSolid() {
                       
                       <button
                         onClick={() => removeFromWatchlist(item.id, item.type)}
-                        class="px-2 py-1 rounded text-xs bg-red-600 hover:bg-red-700 text-white transition-colors"
+                        class="px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs transition-colors"
                       >
                         🗑 Eliminar
                       </button>
@@ -265,6 +332,11 @@ export default function WatchlistSolid() {
         <div class="flex justify-between items-center text-sm">
           <div class="text-gray-300">
             📊 {stats().movies} películas • {stats().tvShows} series • {stats().watched}/{stats().total} vistas
+            {stats().total > 0 && (
+              <span class="ml-4 text-xs text-gray-500">
+                Promedio: ⭐{stats().avgRating.toFixed(1)} • Vistas: ⭐{stats().watchedAvgRating.toFixed(1)}
+              </span>
+            )}
           </div>
           <div class="text-blue-300 font-medium">
             Solid.js Component • Estado global compartido

@@ -1,4 +1,5 @@
 ---
+// src/layouts/Layout.astro
 export interface Props {
   title: string;
 }
@@ -21,7 +22,23 @@ const { title } = Astro.props;
   <body class="bg-gray-900 text-white min-h-screen">
     <nav class="bg-gray-800 p-4 shadow-lg">
       <div class="container mx-auto flex justify-between items-center">
-        <h1 class="text-2xl font-bold text-primary-400">🎬 MovieDash</h1>
+        <div class="flex items-center gap-6">
+          <h1 class="text-2xl font-bold text-primary-400">🎬 MovieDash</h1>
+          <div class="flex gap-4">
+            <a
+              href="/"
+              class="text-gray-300 hover:text-white transition-colors"
+            >
+              🏠 Inicio
+            </a>
+            <a
+              href="/watchlist"
+              class="text-gray-300 hover:text-white transition-colors"
+            >
+              📋 Mi Watchlist
+            </a>
+          </div>
+        </div>
         <div class="text-sm text-gray-400">
           Demo técnica con Astro + Vue + Svelte + Preact + Solid
         </div>

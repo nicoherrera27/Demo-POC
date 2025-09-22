@@ -183,6 +183,45 @@ const popularTVShows = popularTVResponse.results.slice(0, 6);
       </div>
     </div>
   </section>
+
+  <script>
+    // Cargar el store INMEDIATAMENTE al cargar la página
+    console.log('🚀 Loading watchlist store...');
+
+    import('../lib/watchlistStore')
+      .then(({ watchlistStore, WatchlistEvents }) => {
+        console.log(
+          '✅ Watchlist store loaded with',
+          watchlistStore.getWatchlist().length,
+          'items'
+        );
+
+        // Re-configurar eventos por si acaso
+        WatchlistEvents.setupGlobalListeners();
+
+        // Hacer disponible globalmente
+        window.watchlistStore = watchlistStore;
+        window.WatchlistEvents = WatchlistEvents;
+
+        // Forzar notificación inicial después de un momento
+        setTimeout(() => {
+          console.log('🔄 Force initial notification');
+          const currentData = watchlistStore.getWatchlist();
+          const event = new CustomEvent('watchlist:forceUpdate', {
+            detail: {
+              watchlist: currentData,
+              stats: watchlistStore.getStats(),
+            },
+          });
+          window.dispatchEvent(event);
+        }, 200);
+
+        console.log('✅ Watchlist system fully ready');
+      })
+      .catch((error) => {
+        console.error('❌ Error loading watchlist store:', error);
+      });
+  </script>
 </Layout>
 
 <script>
