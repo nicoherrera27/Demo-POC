@@ -31,7 +31,6 @@
       </div>
     </div>
 
-    <!-- Loading State -->
     <div v-if="loading" class="text-center py-12">
       <div class="text-purple-400 text-lg mb-2">
         🔄 Cargando contenido mejor valorado...
@@ -41,7 +40,6 @@
       </div>
     </div>
 
-    <!-- Error State -->
     <div v-else-if="error" class="text-center py-12">
       <div class="text-red-400 text-lg mb-4">
         ❌ {{ error }}
@@ -54,9 +52,7 @@
       </button>
     </div>
 
-    <!-- Content State -->
     <div v-else-if="getCurrentItems().length > 0" class="relative">
-      <!-- Navigation Buttons -->
       <template v-if="getCurrentItems().length > 4">
         <button
           @click="prevSlide"
@@ -73,7 +69,6 @@
         </button>
       </template>
 
-      <!-- Carousel -->
       <div class="overflow-hidden rounded-lg">
         <div 
           class="flex transition-transform duration-500 ease-in-out"
@@ -103,7 +98,6 @@
                   </div>
                 </div>
                 
-                <!-- Overlay with rating -->
                 <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <div class="absolute bottom-2 left-2 right-2">
                     <div class="text-white text-sm">
@@ -117,7 +111,6 @@
                   </div>
                 </div>
 
-                <!-- Rank badge -->
                 <div class="absolute top-2 left-2 bg-purple-600 text-white px-2 py-1 rounded-full text-xs font-bold">
                   #{{ index + 1 }}
                 </div>
@@ -143,7 +136,6 @@
                   </span>
                 </div>
 
-                <!-- Botón watchlist dinámico -->
                 <button
                   @click="handleWatchlistAction(item, activeTab)"
                   :disabled="watchlistLoading[getItemKey(item.id, activeTab)]"
@@ -170,7 +162,6 @@
         </div>
       </div>
 
-      <!-- Progress indicators -->
       <div v-if="getCurrentItems().length > 4" class="flex justify-center mt-4 gap-2">
         <button
           v-for="(_, index) in Math.max(1, getCurrentItems().length - 3)"
@@ -185,7 +176,6 @@
         />
       </div>
 
-      <!-- Stats bar -->
       <div class="mt-6 bg-gray-700 rounded-lg p-4">
         <div class="flex justify-between items-center text-sm">
           <div class="text-gray-300">
@@ -198,7 +188,6 @@
       </div>
     </div>
 
-    <!-- Empty State -->
     <div v-else class="text-center py-12">
       <div class="text-gray-400 text-lg mb-4">
         📭 No hay contenido disponible
@@ -206,14 +195,6 @@
       <div class="text-gray-500 text-sm">
         Verifica la configuración de la API
       </div>
-    </div>
-
-    <!-- Debug Panel (solo desarrollo) -->
-    <div v-if="isDev" class="mt-4 p-3 bg-gray-800 rounded text-xs text-gray-400 font-mono">
-      🔍 Vue Debug: loading={{ loading }}, error={{ error || 'none' }}, 
-      movies={{ topMovies.length }}, tv={{ topTVShows.length }}, 
-      activeTab={{ activeTab }}, currentItems={{ getCurrentItems().length }},
-      watchlistItems={{ watchlistItems.size }}
     </div>
   </div>
 </template>
@@ -223,133 +204,89 @@ import { ref, onMounted, computed, onUnmounted } from 'vue';
 import type { Movie, TVShow } from '../types/movies.ts';
 import { tmdbApi } from '../lib/tmdb';
 
-// Tipos locales
 type TabType = 'movies' | 'tv';
-type WatchlistKey = string; // formato: "id-type"
+type WatchlistKey = string;
 
-// Variables reactivas principales
 const activeTab = ref<TabType>('movies');
 const currentIndex = ref(0);
 const topMovies = ref<Movie[]>([]);
 const topTVShows = ref<TVShow[]>([]);
 const loading = ref(true);
 const error = ref('');
-
-// Variables reactivas para watchlist
 const watchlistItems = ref<Set<WatchlistKey>>(new Set());
 const watchlistLoading = ref<Record<WatchlistKey, boolean>>({});
 
-// Variable para auto-scroll
 let autoScrollInterval: ReturnType<typeof setInterval> | null = null;
 let storeUnsubscribe: (() => void) | null = null;
 
-// Computed para detectar si estamos en desarrollo
 const isDev = computed(() => {
   return typeof window !== 'undefined' && window.location.hostname === 'localhost';
 });
 
-// Función para obtener items actuales
 const getCurrentItems = (): (Movie | TVShow)[] => {
   return activeTab.value === 'movies' ? topMovies.value : topTVShows.value;
 };
 
-// Función para obtener título
 const getTitle = (item: Movie | TVShow): string => {
   return 'title' in item ? item.title : item.name;
 };
 
-// Función para obtener año
 const getReleaseYear = (item: Movie | TVShow): string => {
   const date = 'release_date' in item ? item.release_date : item.first_air_date;
   return date ? new Date(date).getFullYear().toString() : 'N/A';
 };
 
-// Función para generar clave única de item
 const getItemKey = (id: number, type: TabType): WatchlistKey => {
   const normalizedType = type === 'movies' ? 'movie' : 'tv';
   return `${id}-${normalizedType}`;
 };
 
-// Función para verificar si un item está en watchlist
 const isInWatchlist = (id: number, type: TabType): boolean => {
   return watchlistItems.value.has(getItemKey(id, type));
 };
 
-// Función para actualizar el estado de watchlist desde el store
 const updateWatchlistState = async (): Promise<void> => {
   try {
     const { watchlistStore } = await import('../lib/watchlistStore');
     const currentWatchlist = watchlistStore.getWatchlist();
-    
-    // Crear nuevo Set con los IDs actuales
     const newSet = new Set<WatchlistKey>();
     currentWatchlist.forEach(item => {
       newSet.add(`${item.id}-${item.type}`);
     });
-    
     watchlistItems.value = newSet;
-    console.log('🔄 Vue: Updated watchlist state, items:', newSet.size);
   } catch (error) {
-    console.error('❌ Vue: Error updating watchlist state:', error);
+    // Error handling
   }
 };
 
-// Función para manejar acciones de watchlist
 const handleWatchlistAction = async (item: Movie | TVShow, type: TabType): Promise<void> => {
   const itemKey = getItemKey(item.id, type);
   const normalizedType = type === 'movies' ? 'movie' : 'tv';
   
   try {
-    // Activar loading para este item específico
     watchlistLoading.value = { ...watchlistLoading.value, [itemKey]: true };
-    
-    console.log('🎬 Vue: Processing watchlist action for:', getTitle(item), normalizedType);
-    
-    // Importar dinámicamente el store
     const { watchlistStore } = await import('../lib/watchlistStore');
-    
-    // Verificar si ya está en la watchlist
     const isAlreadyInWatchlist = watchlistStore.isInWatchlist(item.id, normalizedType);
     
-    let success = false;
     if (isAlreadyInWatchlist) {
-      // Remover de watchlist
-      console.log('🗑️ Vue: Removing from watchlist:', getTitle(item));
-      success = watchlistStore.removeFromWatchlist(item.id, normalizedType);
-      if (success) {
-        console.log('✅ Vue: Successfully removed:', getTitle(item));
-      }
+      watchlistStore.removeFromWatchlist(item.id, normalizedType);
     } else {
-      // Agregar a watchlist
-      console.log('➕ Vue: Adding to watchlist:', getTitle(item));
-      success = watchlistStore.addToWatchlist(item, normalizedType);
-      if (success) {
-        console.log('✅ Vue: Successfully added:', getTitle(item));
-      } else {
-        console.log('⚠️ Vue: Item already in watchlist:', getTitle(item));
-      }
+      watchlistStore.addToWatchlist(item, normalizedType);
     }
-    
-    // El estado se actualizará automáticamente via suscripción al store
-    
   } catch (error) {
-    console.error('❌ Vue: Error with watchlist action:', error);
+    // Error handling
   } finally {
-    // Desactivar loading
     const newLoading = { ...watchlistLoading.value };
     delete newLoading[itemKey];
     watchlistLoading.value = newLoading;
   }
 };
 
-// Función para cambiar tab
 const switchTab = (tab: TabType): void => {
-  console.log('🔄 Vue: Switching tab to:', tab);
   activeTab.value = tab;
   currentIndex.value = 0;
 };
 
-// Función para slide siguiente
 const nextSlide = (): void => {
   const items = getCurrentItems();
   if (items.length > 4) {
@@ -357,7 +294,6 @@ const nextSlide = (): void => {
   }
 };
 
-// Función para slide anterior
 const prevSlide = (): void => {
   const items = getCurrentItems();
   if (items.length > 4) {
@@ -365,10 +301,7 @@ const prevSlide = (): void => {
   }
 };
 
-// Función para cargar datos de TMDB
 const fetchData = async (): Promise<void> => {
-  console.log('🚀 Vue: Iniciando carga de datos...');
-  
   try {
     loading.value = true;
     error.value = '';
@@ -378,63 +311,37 @@ const fetchData = async (): Promise<void> => {
       tmdbApi.getTopRatedTVShows()
     ]);
     
-    console.log('📊 Vue: Respuestas recibidas:', {
-      movies: moviesResponse.results?.length || 0,
-      tv: tvResponse.results?.length || 0
-    });
-    
     topMovies.value = moviesResponse.results.slice(0, 8);
     topTVShows.value = tvResponse.results.slice(0, 8);
     
-    console.log('✅ Vue: Datos guardados:', {
-      movies: topMovies.value.length,
-      tv: topTVShows.value.length
-    });
-    
   } catch (err) {
-    console.error('❌ Vue: Error loading top rated content:', err);
     error.value = 'Error cargando contenido: ' + (err instanceof Error ? err.message : 'Error desconocido');
   } finally {
     loading.value = false;
   }
 };
 
-// Hook de montaje
 onMounted(async () => {
-  console.log('🚀 Vue: Componente TopRatedVue montado');
-  
-  // Cargar datos de TMDB
   await fetchData();
-  
-  // Cargar estado inicial de watchlist
   await updateWatchlistState();
   
-  // Suscribirse a cambios del store
   try {
     const { watchlistStore } = await import('../lib/watchlistStore');
     storeUnsubscribe = watchlistStore.subscribe(() => {
-      console.log('🔄 Vue: Received store update notification');
       updateWatchlistState();
     });
-    console.log('✅ Vue: Successfully subscribed to watchlist store');
   } catch (error) {
-    console.error('❌ Vue: Error subscribing to store:', error);
+    // Error handling
   }
   
-  // Auto-scroll cada 5 segundos
   autoScrollInterval = setInterval(() => {
     if (!loading.value && getCurrentItems().length > 0) {
       nextSlide();
     }
   }, 5000);
-  
-  console.log('✅ Vue: Component fully initialized');
 });
 
-// Hook de cleanup
 onUnmounted(() => {
-  console.log('🧹 Vue: Limpiando TopRatedVue');
-  
   if (autoScrollInterval) {
     clearInterval(autoScrollInterval);
     autoScrollInterval = null;

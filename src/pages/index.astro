@@ -1,12 +1,12 @@
 ---
+// src/pages/index.astro
 import Layout from '../layouts/Layout.astro';
 import MovieCard from '../components/MovieCard.tsx';
 import SearchComponent from '../components/SearchComponent.vue';
 import TrendingWidget from '../components/TrendingWidget.svelte';
 import StatsWidget from '../components/StatsWidget.tsx';
-import TopRatedSolid from '../components/TopRatedCarrousel.vue';
+import TopRatedCarrousel from '../components/TopRatedCarrousel.vue'; // Cambiado a SolidJS
 import { tmdbApi } from '../lib/tmdb';
-import WatchlistSolid from '../components/WatchlistSolid.tsx';
 
 // Fetch data at build time (SSG)
 const [popularMoviesResponse, popularTVResponse] = await Promise.all([
@@ -45,28 +45,21 @@ const popularTVShows = popularTVResponse.results.slice(0, 6);
 
   <!-- Framework Demonstrations Grid -->
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-    <!-- Vue Component - Search (Client-side interactivity) -->
-    <div>
-      <SearchComponent client:load />
-    </div>
-
-    <!-- Preact Component - Stats (Interactive dashboard) -->
-    <div>
-      <StatsWidget client:load />
-    </div>
+    <SearchComponent client:load />
+    <StatsWidget client:load />
   </div>
 
-  <!-- Svelte Component - Trending Carousel (Auto-updating) -->
+  <!-- Svelte Component - Trending Carousel -->
   <div class="mb-8">
     <TrendingWidget client:load />
   </div>
 
-  <!-- Solid Component - Top Rated Carousel (Solo cliente) -->
-  <div class="mb-8">
-    <TopRatedSolid client:load />
+  <!-- Solid Component - Top Rated Carousel -->
+  <div class="mb-8" id="top-rated">
+    <TopRatedCarrousel client:load />
   </div>
 
-  <!-- Static Content with React Components (Hydrated on interaction) -->
+  <!-- Static Content with React Components SS-->
   <section class="mb-8">
     <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
       <h2 class="text-2xl font-bold mb-6 text-primary-400">
@@ -96,9 +89,26 @@ const popularTVShows = popularTVResponse.results.slice(0, 6);
       </div>
     </div>
   </section>
-  <div>
-    <WatchlistSolid client:load />
-  </div>
+
+  <!-- Call to Action para Watchlist -->
+  <section class="mb-8">
+    <div
+      class="bg-gradient-to-r from-green-800 to-teal-800 p-6 rounded-lg shadow-lg text-center"
+    >
+      <h2 class="text-2xl font-bold mb-4 text-white">
+        📋 ¿Agregaste algo a tu Watchlist?
+      </h2>
+      <p class="text-green-200 mb-6">
+        Organiza tus películas y series pendientes con prioridades y notas
+      </p>
+      <a
+        href="/watchlist"
+        class="bg-white text-green-800 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-flex items-center gap-2"
+      >
+        📋 Ver Mi Watchlist
+      </a>
+    </div>
+  </section>
 
   <!-- Framework Comparison Section -->
   <section class="mb-8">
@@ -108,24 +118,21 @@ const popularTVShows = popularTVResponse.results.slice(0, 6);
       <h2 class="text-2xl font-bold mb-6 text-center text-white">
         🔧 Demostración de Frameworks
       </h2>
-
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-gray-700 p-4 rounded-lg text-center">
           <div class="text-3xl mb-2">⚡</div>
           <h3 class="font-bold text-green-400 mb-2">Vue.js</h3>
           <p class="text-sm text-gray-300">
-            Componente de búsqueda interactiva con reactividad
+            Componente de búsqueda interactiva con watchlist
           </p>
         </div>
-
         <div class="bg-gray-700 p-4 rounded-lg text-center">
           <div class="text-3xl mb-2">🎯</div>
           <h3 class="font-bold text-orange-400 mb-2">Svelte</h3>
           <p class="text-sm text-gray-300">
-            Widget de tendencias con compilación optimizada
+            Widget de tendencias y watchlist con compilación optimizada
           </p>
         </div>
-
         <div class="bg-gray-700 p-4 rounded-lg text-center">
           <div class="text-3xl mb-2">⚛️</div>
           <h3 class="font-bold text-blue-400 mb-2">Preact</h3>
@@ -133,117 +140,35 @@ const popularTVShows = popularTVResponse.results.slice(0, 6);
             Dashboard de estadísticas liviano y eficiente
           </p>
         </div>
-
         <div class="bg-gray-700 p-4 rounded-lg text-center">
           <div class="text-3xl mb-2">💎</div>
           <h3 class="font-bold text-blue-500 mb-2">Solid.js</h3>
           <p class="text-sm text-gray-300">
-            Carrusel de mejor valorados con granular reactivity
+            Carrusel top-rated y calculadora con granular reactivity
           </p>
         </div>
       </div>
     </div>
   </section>
-
-  <!-- Technical Details -->
-  <section class="mb-8">
-    <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
-      <h2 class="text-2xl font-bold mb-6 text-primary-400">
-        🏗️ Características Técnicas de Astro
-      </h2>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <h3 class="text-lg font-semibold text-white mb-3">
-            🏝️ Astro Islands
-          </h3>
-          <ul class="space-y-2 text-sm text-gray-300">
-            <li>• Hidratación selectiva por componente</li>
-            <li>
-              • Diferentes estrategias: <code>client:load</code>, <code
-                >client:visible</code
-              >
-            </li>
-            <li>• Componentes estáticos por defecto</li>
-            <li>• Mejor performance y SEO</li>
-          </ul>
-        </div>
-
-        <div>
-          <h3 class="text-lg font-semibold text-white mb-3">
-            🔧 Multi-Framework
-          </h3>
-          <ul class="space-y-2 text-sm text-gray-300">
-            <li>• Vue.js para búsqueda reactiva</li>
-            <li>• Svelte para widgets optimizados</li>
-            <li>• Preact para componentes livianos</li>
-            <li>• Solid.js para reactividad granular</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <script is:inline>
-    // Cargar el store INMEDIATAMENTE al cargar la página
-    console.log('🚀 Loading watchlist store...');
-
-    import('/src/lib/watchlistStore.ts')
-      .then(({ watchlistStore, WatchlistEvents }) => {
-        console.log(
-          '✅ Watchlist store loaded with',
-          watchlistStore.getWatchlist().length,
-          'items'
-        );
-
-        // Re-configurar eventos por si acaso
-        WatchlistEvents.setupGlobalListeners();
-
-        // Hacer disponible globalmente para debugging
-        if (typeof window !== 'undefined') {
-          window.watchlistStore = watchlistStore;
-          window.WatchlistEvents = WatchlistEvents;
-
-          // Debug helper
-          window.debugWatchlist = () => {
-            watchlistStore.debug();
-            watchlistStore.forceUpdate();
-          };
-        }
-
-        // Forzar notificación inicial después de que todo esté cargado
-        setTimeout(() => {
-          console.log('🔄 Force initial update');
-          watchlistStore.forceUpdate();
-        }, 500);
-
-        console.log(
-          '✅ Watchlist system fully ready - try debugWatchlist() in console'
-        );
-      })
-      .catch((error) => {
-        console.error('❌ Error loading watchlist store:', error);
-      });
-  </script>
 </Layout>
 
 <script>
-  // Add some interactivity for demo purposes
-  console.log('🚀 Astro MovieDash Demo loaded!');
-  console.log('Frameworks loaded:', {
-    Vue: '✅ SearchComponent',
-    Svelte: '✅ TrendingWidget',
-    Preact: '✅ StatsWidget',
-    SolidJS: '✅ TopRatedCarousel',
-    React: '✅ MovieCard components',
-  });
-</script>
-
-<style>
-  code {
-    background-color: rgba(255, 255, 255, 0.1);
-    padding: 0.2rem 0.4rem;
-    border-radius: 0.25rem;
-    font-family: 'Courier New', monospace;
+  // Declare global window property
+  declare global {
+    interface Window {
+      watchlistStore: any;
+    }
   }
-</style>
+
+  // Cargar el store de watchlist
+  import('../lib/watchlistStore')
+    .then(({ watchlistStore, WatchlistEvents }) => {
+      console.log('🚀 Homepage: Store loaded');
+      WatchlistEvents.setupGlobalListeners();
+      window.watchlistStore = watchlistStore;
+      console.log('✅ Homepage ready');
+    })
+    .catch((error) => {
+      console.error('❌ Error loading watchlist store:', error);
+    });
+</script>

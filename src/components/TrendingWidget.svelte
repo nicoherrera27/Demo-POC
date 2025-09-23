@@ -28,7 +28,7 @@ import type { Movie, TVShow } from '../types/movies.ts';
     setInterval(() => {
       const maxSlides = activeTab === 'movies' ? trendingMovies.length : trendingTVShows.length;
       currentSlide = (currentSlide + 1) % Math.max(1, maxSlides - 2);
-    }, 4000);
+    },9999999);
   });
 
   function getTitle(item: Movie | TVShow): string {
@@ -118,14 +118,14 @@ import type { Movie, TVShow } from '../types/movies.ts';
 <style>
   .line-clamp-2 {
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
   
   .line-clamp-3 {
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }

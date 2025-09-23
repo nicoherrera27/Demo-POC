@@ -30,171 +30,382 @@ export interface WatchlistStats {
 
 type WatchlistListener = (watchlist: WatchlistItem[], stats: WatchlistStats) => void;
 
+export interface WatchlistUpdateEventDetail {
+  watchlist: WatchlistItem[];
+  stats: WatchlistStats;
+}
+
 class WatchlistStore {
   private listeners = new Set<WatchlistListener>();
   private watchlist: WatchlistItem[] = [];
 
   constructor() {
-    // Cargar datos inmediatamente
     this.watchlist = this.loadFromStorage();
-    console.log('🏪 WatchlistStore initialized with', this.watchlist.length, 'items');
-    
-    // Si estamos en el browser, notificar inmediatamente
+    console.log('[WatchlistStore] Initialized with', this.watchlist.length, 'items');
+
     if (typeof window !== 'undefined') {
-      // Usar setTimeout para asegurar que los componentes estén montados
       setTimeout(() => {
-        console.log('🔄 Initial notification to components');
+        console.log('[WatchlistStore] Async initial notification');
         this.notifyListeners();
       }, 50);
-      
-      // También notificar cuando el DOM esté completamente cargado
+
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
-          console.log('🔄 DOM loaded, notifying components');
+          console.log('[WatchlistStore] DOM ready notification');
           this.notifyListeners();
         });
       }
     }
   }
 
-  // Cargar desde localStorage
   private loadFromStorage(): WatchlistItem[] {
-    if (typeof window === 'undefined') return [];
+    if (typeof window === 'undefined') {
+      return [];
+    }
+
     try {
       const stored = localStorage.getItem('movieDashWatchlist');
-      const items = stored ? JSON.parse(stored) : [];
-      console.log('💾 Loaded from storage:', items.length, 'items');
-      return items;
+      if (!stored) {
+        console.log('[WatchlistStore] No stored data found');
+        return [];
+      }
+
+      const parsed = JSON.parse(stored);
+      if (!Array.isArray(parsed)) {
+        console.warn('[WatchlistStore] Ignoring malformed stored data');
+        return [];
+      }
+
+      const normalized = parsed
+        .map(item => this.normalizeStoredItem(item))
+        .filter((item): item is WatchlistItem => Boolean(item));
+
+      const deduped = this.dedupeAndSort(normalized);
+      const normalizedJson = JSON.stringify(deduped);
+
+      if (normalizedJson !== stored) {
+        localStorage.setItem('movieDashWatchlist', normalizedJson);
+      }
+
+      console.log('[WatchlistStore] Loaded', deduped.length, 'items from storage');
+      return deduped;
     } catch (error) {
-      console.error('❌ Error loading from storage:', error);
+      console.error('[WatchlistStore] Error loading from storage:', error);
       return [];
     }
   }
 
-  // Guardar en localStorage
   private saveToStorage(): void {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined') {
+      return;
+    }
+
     try {
       localStorage.setItem('movieDashWatchlist', JSON.stringify(this.watchlist));
-      console.log('💾 Saved to storage:', this.watchlist.length, 'items');
+      console.log('[WatchlistStore] Persisted', this.watchlist.length, 'items');
     } catch (error) {
-      console.error('❌ Error saving to storage:', error);
+      console.error('[WatchlistStore] Error saving to storage:', error);
     }
   }
 
-  // Obtener la watchlist actual
+  private normalizeType(rawType: unknown): 'movie' | 'tv' {
+    if (typeof rawType === 'string') {
+      const normalized = rawType.trim().toLowerCase();
+      if (normalized === 'tv' || normalized === 'show' || normalized === 'series') {
+        return 'tv';
+      }
+      if (normalized === 'movie' || normalized === 'movies' || normalized === 'film' || normalized === 'films') {
+        return 'movie';
+      }
+    }
+    return 'movie';
+  }
+
+  private normalizePriority(value: unknown): WatchlistItem['priority'] {
+    if (typeof value === 'string') {
+      const normalized = value.trim().toLowerCase();
+      if (normalized === 'high' || normalized === 'medium' || normalized === 'low') {
+        return normalized as WatchlistItem['priority'];
+      }
+    }
+    return 'medium';
+  }
+
+  private pickString(...candidates: unknown[]): string | undefined {
+    for (const candidate of candidates) {
+      if (typeof candidate === 'string') {
+        const trimmed = candidate.trim();
+        if (trimmed.length > 0) {
+          return trimmed;
+        }
+      }
+    }
+    return undefined;
+  }
+
+  private normalizeNumber(value: unknown): number {
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      return value;
+    }
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  private parseBoolean(value: unknown): boolean {
+    if (typeof value === 'boolean') {
+      return value;
+    }
+    if (typeof value === 'string') {
+      const normalized = value.trim().toLowerCase();
+      if (normalized === 'true') {
+        return true;
+      }
+      if (normalized === 'false') {
+        return false;
+      }
+    }
+    return Boolean(value);
+  }
+
+  private ensureIsoDate(value: unknown, fallback?: string): string {
+    const toIso = (candidate?: string): string | null => {
+      if (!candidate) {
+        return null;
+      }
+      const trimmed = candidate.trim();
+      if (!trimmed) {
+        return null;
+      }
+      const parsed = Date.parse(trimmed);
+      if (Number.isNaN(parsed)) {
+        return null;
+      }
+      return new Date(parsed).toISOString();
+    };
+
+    const direct = typeof value === 'string' ? toIso(value) : null;
+    if (direct) {
+      return direct;
+    }
+
+    if (fallback) {
+      const fallbackIso = toIso(fallback);
+      if (fallbackIso) {
+        return fallbackIso;
+      }
+    }
+
+    return new Date().toISOString();
+  }
+
+  private normalizeStoredItem(raw: unknown): WatchlistItem | null {
+    if (!raw || typeof raw !== 'object') {
+      return null;
+    }
+
+    const source = raw as Record<string, unknown>;
+    const idRaw = source.id ?? source.tmdbId ?? source.tmdbID;
+    const idNumber = typeof idRaw === 'number' ? idRaw : Number(idRaw);
+    if (!Number.isFinite(idNumber)) {
+      return null;
+    }
+    const id = Math.trunc(idNumber);
+
+    const type = this.normalizeType(source.type);
+    const title = this.pickString(source.title, source.name) ?? 'Untitled item';
+    const overview = this.pickString(source.overview, source.description, source.plot, source.synopsis);
+    const poster_path = this.pickString(source.poster_path, source.poster, source.posterUrl, source.posterPath);
+    const backdrop_path = this.pickString(source.backdrop_path, source.backdrop, source.backdropUrl, source.backdropPath);
+
+    const releaseDate = this.pickString(source.release_date, source.first_air_date, source.date, source.premiereDate);
+    const yearCandidate = this.normalizeNumber(source.year);
+    const year = Number.isFinite(yearCandidate) && yearCandidate > 0
+      ? Math.trunc(yearCandidate)
+      : releaseDate
+        ? new Date(releaseDate).getFullYear()
+        : new Date().getFullYear();
+
+    const vote_average = this.normalizeNumber(source.vote_average ?? source.rating);
+    const vote_count = Math.max(0, Math.trunc(this.normalizeNumber(source.vote_count ?? source.votes)));
+
+    const dateAdded = this.ensureIsoDate(this.pickString(source.dateAdded, source.addedAt, source.createdAt));
+    const watchedFlag = this.parseBoolean(source.isWatched ?? source.watched);
+    const dateWatched = watchedFlag
+      ? this.ensureIsoDate(this.pickString(source.dateWatched, source.watchedAt), dateAdded)
+      : undefined;
+
+    const priority = this.normalizePriority(source.priority);
+    const notes = this.pickString(source.notes, source.comment, source.comments);
+
+    return {
+      id,
+      title,
+      overview: overview ?? undefined,
+      poster_path: poster_path ?? undefined,
+      backdrop_path: backdrop_path ?? undefined,
+      year,
+      vote_average,
+      vote_count,
+      type,
+      dateAdded,
+      isWatched: watchedFlag,
+      notes: notes ?? undefined,
+      priority,
+      dateWatched,
+    };
+  }
+
+  private dedupeAndSort(items: WatchlistItem[]): WatchlistItem[] {
+    const map = new Map<string, WatchlistItem>();
+
+    for (const item of items) {
+      const key = `${item.id}-${item.type}`;
+      const existing = map.get(key);
+      if (!existing) {
+        map.set(key, item);
+        continue;
+      }
+
+      const existingTime = this.getTimestamp(existing.dateAdded);
+      const candidateTime = this.getTimestamp(item.dateAdded);
+
+      if (candidateTime > existingTime) {
+        map.set(key, { ...existing, ...item });
+        continue;
+      }
+
+      if (candidateTime === existingTime) {
+        const existingScore = (existing.poster_path ? 1 : 0) + (existing.overview ? 1 : 0);
+        const candidateScore = (item.poster_path ? 1 : 0) + (item.overview ? 1 : 0);
+        if (candidateScore > existingScore) {
+          map.set(key, { ...existing, ...item });
+        }
+      }
+    }
+
+    return Array.from(map.values()).sort((a, b) => this.getTimestamp(b.dateAdded) - this.getTimestamp(a.dateAdded));
+  }
+
+  private getTimestamp(value: string): number {
+    const parsed = Date.parse(value);
+    return Number.isNaN(parsed) ? 0 : parsed;
+  }
+
   getWatchlist(): WatchlistItem[] {
     return [...this.watchlist];
   }
 
-  // Agregar elemento a la watchlist
   addToWatchlist(item: Movie | TVShow, type: 'movie' | 'tv'): boolean {
-    const title = type === 'movie' ? (item as Movie).title : (item as TVShow).name;
-    const releaseDate = type === 'movie' ? (item as Movie).release_date : (item as TVShow).first_air_date;
-    
+    const normalizedType = this.normalizeType(type);
+    const movieLike = item as Movie;
+    const tvLike = item as TVShow;
+    const title = normalizedType === 'movie'
+      ? this.pickString(movieLike.title, tvLike.name) ?? 'Untitled item'
+      : this.pickString(tvLike.name, movieLike.title) ?? 'Untitled item';
+
+    const releaseDate = normalizedType === 'movie'
+      ? this.pickString(movieLike.release_date)
+      : this.pickString(tvLike.first_air_date);
+
     const watchlistItem: WatchlistItem = {
       id: item.id,
       title,
-      overview: item.overview || '',
-      poster_path: item.poster_path || undefined,
-      backdrop_path: item.backdrop_path || undefined,
+      overview: this.pickString(item.overview) ?? undefined,
+      poster_path: this.pickString(movieLike.poster_path, tvLike.poster_path) ?? undefined,
+      backdrop_path: this.pickString(movieLike.backdrop_path, tvLike.backdrop_path) ?? undefined,
       year: releaseDate ? new Date(releaseDate).getFullYear() : new Date().getFullYear(),
-      vote_average: item.vote_average || 0,
-      vote_count: item.vote_count || 0,
-      type,
+      vote_average: this.normalizeNumber(movieLike.vote_average ?? tvLike.vote_average ?? 0),
+      vote_count: Math.max(0, Math.trunc(this.normalizeNumber(movieLike.vote_count ?? tvLike.vote_count ?? 0))),
+      type: normalizedType,
       dateAdded: new Date().toISOString(),
       isWatched: false,
-      notes: '',
-      priority: 'medium'
+      priority: 'medium',
     };
 
-    // Verificar si ya existe
-    const exists = this.watchlist.find(w => w.id === item.id && w.type === type);
+    const exists = this.watchlist.find(existing => existing.id === watchlistItem.id && existing.type === watchlistItem.type);
     if (exists) {
-      console.log('⚠️ Item already in watchlist:', title);
+      console.log('[WatchlistStore] Item already in watchlist:', title);
       return false;
     }
 
-    // Agregar al principio de la lista
-    this.watchlist.unshift(watchlistItem);
+    this.watchlist = [watchlistItem, ...this.watchlist];
     this.saveToStorage();
     this.notifyListeners();
-    
-    console.log('✅ Added to watchlist:', title, 'Total items:', this.watchlist.length);
+
+    console.log('[WatchlistStore] Added to watchlist:', title);
     return true;
   }
 
-  // Remover elemento de la watchlist
   removeFromWatchlist(id: number, type: 'movie' | 'tv'): boolean {
+    const normalizedType = this.normalizeType(type);
     const initialLength = this.watchlist.length;
-    this.watchlist = this.watchlist.filter(item => !(item.id === id && item.type === type));
-    
+    this.watchlist = this.watchlist.filter(item => !(item.id === id && item.type === normalizedType));
+
     if (this.watchlist.length < initialLength) {
       this.saveToStorage();
       this.notifyListeners();
-      console.log('🗑️ Removed from watchlist, Total items:', this.watchlist.length);
+      console.log('[WatchlistStore] Removed item', id, normalizedType);
       return true;
     }
+
     return false;
   }
 
-  // Marcar como visto/no visto
   toggleWatched(id: number, type: 'movie' | 'tv'): boolean {
-    const item = this.watchlist.find(w => w.id === id && w.type === type);
-    if (item) {
-      item.isWatched = !item.isWatched;
-      if (item.isWatched) {
-        item.dateWatched = new Date().toISOString();
-      } else {
-        delete item.dateWatched;
-      }
-      this.saveToStorage();
-      this.notifyListeners();
-      console.log(`${item.isWatched ? '✅' : '⏳'} Toggled watched status:`, item.title);
-      return true;
+    const normalizedType = this.normalizeType(type);
+    const item = this.watchlist.find(entry => entry.id === id && entry.type === normalizedType);
+    if (!item) {
+      return false;
     }
-    return false;
+
+    item.isWatched = !item.isWatched;
+    item.dateWatched = item.isWatched ? new Date().toISOString() : undefined;
+
+    this.saveToStorage();
+    this.notifyListeners();
+    console.log('[WatchlistStore] Toggled watched status:', item.title, '->', item.isWatched);
+    return true;
   }
 
-  // Actualizar prioridad
   setPriority(id: number, type: 'movie' | 'tv', priority: 'high' | 'medium' | 'low'): boolean {
-    const item = this.watchlist.find(w => w.id === id && w.type === type);
-    if (item && ['high', 'medium', 'low'].includes(priority)) {
-      item.priority = priority;
-      this.saveToStorage();
-      this.notifyListeners();
-      return true;
+    const normalizedType = this.normalizeType(type);
+    const item = this.watchlist.find(entry => entry.id === id && entry.type === normalizedType);
+    if (!item) {
+      return false;
     }
-    return false;
+
+    item.priority = this.normalizePriority(priority);
+    this.saveToStorage();
+    this.notifyListeners();
+    return true;
   }
 
-  // Actualizar notas
   updateNotes(id: number, type: 'movie' | 'tv', notes: string): boolean {
-    const item = this.watchlist.find(w => w.id === id && w.type === type);
-    if (item) {
-      item.notes = notes || '';
-      this.saveToStorage();
-      // No notificar cambios por notas para evitar re-renders excesivos
-      return true;
+    const normalizedType = this.normalizeType(type);
+    const item = this.watchlist.find(entry => entry.id === id && entry.type === normalizedType);
+    if (!item) {
+      return false;
     }
-    return false;
+
+    const cleaned = notes?.trim();
+    item.notes = cleaned ? cleaned : undefined;
+    this.saveToStorage();
+    return true;
   }
 
-  // Verificar si un elemento está en la watchlist
   isInWatchlist(id: number, type: 'movie' | 'tv'): boolean {
-    return this.watchlist.some(item => item.id === id && item.type === type);
+    const normalizedType = this.normalizeType(type);
+    return this.watchlist.some(item => item.id === id && item.type === normalizedType);
   }
 
-  // Obtener estadísticas
   getStats(): WatchlistStats {
     const total = this.watchlist.length;
     const watched = this.watchlist.filter(item => item.isWatched).length;
-    const unwatched = total - watched;
     const movies = this.watchlist.filter(item => item.type === 'movie').length;
     const tvShows = this.watchlist.filter(item => item.type === 'tv').length;
-    
-    const avgRating = total > 0 
-      ? this.watchlist.reduce((sum, item) => sum + (item.vote_average || 0), 0) / total 
+
+    const avgRating = total > 0
+      ? this.watchlist.reduce((sum, item) => sum + (item.vote_average || 0), 0) / total
       : 0;
 
     const watchedAvgRating = watched > 0
@@ -204,140 +415,169 @@ class WatchlistStore {
     return {
       total,
       watched,
-      unwatched,
+      unwatched: total - watched,
       movies,
       tvShows,
       avgRating,
-      watchedAvgRating
+      watchedAvgRating,
     };
   }
 
-  // Sistema de suscripciones para componentes reactivos
   subscribe(callback: WatchlistListener): () => void {
     this.listeners.add(callback);
-    // Devolver función de cleanup
     return () => {
       this.listeners.delete(callback);
     };
   }
 
-  // Notificar a todos los listeners
   private notifyListeners(): void {
     const stats = this.getStats();
-    console.log('🔔 Store: Notifying', this.listeners.size, 'listeners with', this.watchlist.length, 'items');
-    
+    console.log('[WatchlistStore] Notifying', this.listeners.size, 'listeners with', this.watchlist.length, 'items');
+
     this.listeners.forEach(callback => {
       try {
-        // Usar setTimeout para evitar problemas de sincronización
         setTimeout(() => {
           callback([...this.watchlist], { ...stats });
         }, 0);
       } catch (error) {
-        console.error('❌ Error in watchlist listener:', error);
+        console.error('[WatchlistStore] Listener error:', error);
       }
     });
 
-    // También emitir evento global para compatibilidad
     if (typeof window !== 'undefined') {
-      const event = new CustomEvent('watchlist:update', {
-        detail: { watchlist: [...this.watchlist], stats: { ...stats } }
+      const event = new CustomEvent<WatchlistUpdateEventDetail>('watchlist:update', {
+        detail: { watchlist: [...this.watchlist], stats: { ...stats } },
       });
       window.dispatchEvent(event);
     }
   }
 
-  // Limpiar toda la watchlist (útil para testing)
   clear(): void {
     this.watchlist = [];
     this.saveToStorage();
     this.notifyListeners();
-    console.log('🧹 Watchlist cleared');
+    console.log('[WatchlistStore] Watchlist cleared');
   }
 
-  // Método para debugging
   debug(): void {
-    console.log('🔍 WatchlistStore Debug:', {
+    console.log('[WatchlistStore] Debug snapshot:', {
       items: this.watchlist.length,
       listeners: this.listeners.size,
-      watchlist: this.watchlist.map(i => ({ id: i.id, title: i.title, type: i.type, watched: i.isWatched })),
-      stats: this.getStats()
+      watchlist: this.watchlist.map(item => ({
+        id: item.id,
+        title: item.title,
+        type: item.type,
+        watched: item.isWatched,
+      })),
+      stats: this.getStats(),
     });
   }
 
-  // Forzar notificación manual
   forceUpdate(): void {
-    console.log('🔄 Force updating all listeners');
+    console.log('[WatchlistStore] Forcing listeners update');
     this.notifyListeners();
   }
 }
 
-// Crear instancia global
-export const watchlistStore = new WatchlistStore();
+const WATCHLIST_STORE_GLOBAL_KEY = '__MOVIEDASH_WATCHLIST_STORE__';
 
-// Exponer globalmente para debugging
+const getGlobalObject = (): typeof globalThis => {
+  if (typeof window !== 'undefined') {
+    return window;
+  }
+  return globalThis;
+};
+
+const getOrCreateGlobalStore = (): WatchlistStore => {
+  const globalObject = getGlobalObject() as Record<string, unknown>;
+  const existingStore = globalObject[WATCHLIST_STORE_GLOBAL_KEY] as WatchlistStore | undefined;
+
+  if (existingStore) {
+    return existingStore;
+  }
+
+  const store = new WatchlistStore();
+  globalObject[WATCHLIST_STORE_GLOBAL_KEY] = store;
+  return store;
+};
+
+export const watchlistStore = getOrCreateGlobalStore();
+
 if (typeof window !== 'undefined') {
-  (window as any).watchlistStore = watchlistStore;
+  (window as unknown as Record<string, unknown>).watchlistStore = watchlistStore;
 }
 
-// Sistema de eventos del navegador para comunicación entre frameworks
 export const WatchlistEvents = {
   ADD_TO_WATCHLIST: 'watchlist:add',
   REMOVE_FROM_WATCHLIST: 'watchlist:remove',
   TOGGLE_WATCHED: 'watchlist:toggle',
   UPDATE_WATCHLIST: 'watchlist:update',
 
-  // Configurar listeners globales
   setupGlobalListeners(): void {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined') {
+      return;
+    }
 
-    // Listener para agregar elementos (evento legacy)
+    const globalWindow = window as unknown as Record<string, unknown>;
+    if (globalWindow.__watchlistEventsSetup) {
+      return;
+    }
+    globalWindow.__watchlistEventsSetup = true;
+
     window.addEventListener('addToWatchlist', ((event: CustomEvent) => {
-      const { item, type } = event.detail;
-      console.log('📡 Received legacy addToWatchlist event:', item.title || item.name, type);
+      const { item, type } = event.detail || {};
+      if (!item) {
+        return;
+      }
+      console.log('[WatchlistEvents] Received legacy add event');
       watchlistStore.addToWatchlist(item, type);
     }) as EventListener);
 
-    // Listeners para eventos nuevos
     window.addEventListener(this.ADD_TO_WATCHLIST, ((event: CustomEvent) => {
-      const { item, type } = event.detail;
-      console.log('📡 Received addToWatchlist event:', item.title || item.name, type);
+      const { item, type } = event.detail || {};
+      if (!item) {
+        return;
+      }
+      console.log('[WatchlistEvents] Received add event');
       watchlistStore.addToWatchlist(item, type);
     }) as EventListener);
 
     window.addEventListener(this.REMOVE_FROM_WATCHLIST, ((event: CustomEvent) => {
-      const { id, type } = event.detail;
-      console.log('📡 Received removeFromWatchlist event:', id, type);
+      const { id, type } = event.detail || {};
+      if (typeof id !== 'number') {
+        return;
+      }
+      console.log('[WatchlistEvents] Received remove event');
       watchlistStore.removeFromWatchlist(id, type);
     }) as EventListener);
 
     window.addEventListener(this.TOGGLE_WATCHED, ((event: CustomEvent) => {
-      const { id, type } = event.detail;
-      console.log('📡 Received toggleWatched event:', id, type);
+      const { id, type } = event.detail || {};
+      if (typeof id !== 'number') {
+        return;
+      }
+      console.log('[WatchlistEvents] Received toggle event');
       watchlistStore.toggleWatched(id, type);
     }) as EventListener);
 
-    console.log('🔧 Global watchlist event listeners setup complete');
+    console.log('[WatchlistEvents] Global listeners ready');
   }
 };
 
-// Auto-setup cuando se carga el módulo en el browser
 if (typeof window !== 'undefined') {
-  console.log('🔧 Setting up watchlist system...');
-  
-  // Setup inmediato
+  console.log('[WatchlistStore] Setting up watchlist system');
+
   WatchlistEvents.setupGlobalListeners();
-  
-  // También setup cuando el DOM esté listo si no lo está ya
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-      console.log('🔧 DOM loaded - Re-setting up watchlist listeners');
+      console.log('[WatchlistStore] DOM loaded - re-arming listeners');
       WatchlistEvents.setupGlobalListeners();
     });
   }
-  
-  // Exponer globalmente para debugging DESPUÉS de setup
-  (window as any).watchlistStore = watchlistStore;
-  (window as any).WatchlistEvents = WatchlistEvents;
-  
-  console.log('✅ Watchlist system initialized with', watchlistStore.getWatchlist().length, 'items');
+
+  (window as unknown as Record<string, unknown>).watchlistStore = watchlistStore;
+  (window as unknown as Record<string, unknown>).WatchlistEvents = WatchlistEvents;
+
+  console.log('[WatchlistStore] Ready with', watchlistStore.getWatchlist().length, 'items');
 }
