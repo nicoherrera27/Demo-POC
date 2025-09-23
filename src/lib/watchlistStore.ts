@@ -96,8 +96,8 @@ class WatchlistStore {
       id: item.id,
       title,
       overview: item.overview || '',
-      poster_path: item.poster_path || null,
-      backdrop_path: item.backdrop_path || null,
+      poster_path: item.poster_path || undefined,
+      backdrop_path: item.backdrop_path || undefined,
       year: releaseDate ? new Date(releaseDate).getFullYear() : new Date().getFullYear(),
       vote_average: item.vote_average || 0,
       vote_count: item.vote_count || 0,
@@ -224,13 +224,26 @@ class WatchlistStore {
   // Notificar a todos los listeners
   private notifyListeners(): void {
     const stats = this.getStats();
+    console.log('🔔 Store: Notifying', this.listeners.size, 'listeners with', this.watchlist.length, 'items');
+    
     this.listeners.forEach(callback => {
       try {
-        callback([...this.watchlist], stats);
+        // Usar setTimeout para evitar problemas de sincronización
+        setTimeout(() => {
+          callback([...this.watchlist], { ...stats });
+        }, 0);
       } catch (error) {
         console.error('❌ Error in watchlist listener:', error);
       }
     });
+
+    // También emitir evento global para compatibilidad
+    if (typeof window !== 'undefined') {
+      const event = new CustomEvent('watchlist:update', {
+        detail: { watchlist: [...this.watchlist], stats: { ...stats } }
+      });
+      window.dispatchEvent(event);
+    }
   }
 
   // Limpiar toda la watchlist (útil para testing)
@@ -239,6 +252,22 @@ class WatchlistStore {
     this.saveToStorage();
     this.notifyListeners();
     console.log('🧹 Watchlist cleared');
+  }
+
+  // Método para debugging
+  debug(): void {
+    console.log('🔍 WatchlistStore Debug:', {
+      items: this.watchlist.length,
+      listeners: this.listeners.size,
+      watchlist: this.watchlist.map(i => ({ id: i.id, title: i.title, type: i.type, watched: i.isWatched })),
+      stats: this.getStats()
+    });
+  }
+
+  // Forzar notificación manual
+  forceUpdate(): void {
+    console.log('🔄 Force updating all listeners');
+    this.notifyListeners();
   }
 }
 

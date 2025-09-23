@@ -184,11 +184,11 @@ const popularTVShows = popularTVResponse.results.slice(0, 6);
     </div>
   </section>
 
-  <script>
+  <script is:inline>
     // Cargar el store INMEDIATAMENTE al cargar la página
     console.log('🚀 Loading watchlist store...');
 
-    import('../lib/watchlistStore')
+    import('/src/lib/watchlistStore.ts')
       .then(({ watchlistStore, WatchlistEvents }) => {
         console.log(
           '✅ Watchlist store loaded with',
@@ -199,24 +199,27 @@ const popularTVShows = popularTVResponse.results.slice(0, 6);
         // Re-configurar eventos por si acaso
         WatchlistEvents.setupGlobalListeners();
 
-        // Hacer disponible globalmente
-        window.watchlistStore = watchlistStore;
-        window.WatchlistEvents = WatchlistEvents;
+        // Hacer disponible globalmente para debugging
+        if (typeof window !== 'undefined') {
+          window.watchlistStore = watchlistStore;
+          window.WatchlistEvents = WatchlistEvents;
 
-        // Forzar notificación inicial después de un momento
+          // Debug helper
+          window.debugWatchlist = () => {
+            watchlistStore.debug();
+            watchlistStore.forceUpdate();
+          };
+        }
+
+        // Forzar notificación inicial después de que todo esté cargado
         setTimeout(() => {
-          console.log('🔄 Force initial notification');
-          const currentData = watchlistStore.getWatchlist();
-          const event = new CustomEvent('watchlist:forceUpdate', {
-            detail: {
-              watchlist: currentData,
-              stats: watchlistStore.getStats(),
-            },
-          });
-          window.dispatchEvent(event);
-        }, 200);
+          console.log('🔄 Force initial update');
+          watchlistStore.forceUpdate();
+        }, 500);
 
-        console.log('✅ Watchlist system fully ready');
+        console.log(
+          '✅ Watchlist system fully ready - try debugWatchlist() in console'
+        );
       })
       .catch((error) => {
         console.error('❌ Error loading watchlist store:', error);
