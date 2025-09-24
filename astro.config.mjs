@@ -18,5 +18,8 @@ export default defineConfig({
     optimizeDeps: {
       include: ['solid-js']
     }
+  },
+  devToolbar: {
+    enabled: false
   }
 });

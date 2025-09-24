@@ -5,7 +5,8 @@ import MovieCard from '../components/MovieCard.tsx';
 import SearchComponent from '../components/SearchComponent.vue';
 import TrendingWidget from '../components/TrendingWidget.svelte';
 import StatsWidget from '../components/StatsWidget.tsx';
-import TopRatedCarrousel from '../components/TopRatedCarrousel.vue'; // Cambiado a SolidJS
+import TopRatedCarrousel from '../components/TopRatedCarrousel.vue';
+import FrameworksDesc from '../components/FrameworksDesc.astro';
 import { tmdbApi } from '../lib/tmdb';
 
 // Fetch data at build time (SSG)
@@ -23,7 +24,9 @@ const popularTVShows = popularTVResponse.results.slice(0, 6);
   <section
     class="bg-gradient-to-r from-primary-900 via-purple-900 to-blue-900 rounded-lg p-8 mb-8 text-center"
   >
-    <h1 class="text-4xl md:text-6xl font-bold text-white mb-4">Wobbly Seat 😵💺</h1>
+    <h1 class="text-4xl md:text-6xl font-bold text-white mb-4">
+      Wobbly Seat 😵💺
+    </h1>
   </section>
 
   <!-- Framework Demonstrations Grid -->
@@ -46,7 +49,7 @@ const popularTVShows = popularTVResponse.results.slice(0, 6);
   <section class="mb-8">
     <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
       <h2 class="text-2xl font-bold mb-6 text-primary-400">
-        🔥  Películas Populares (React Components)
+        🔥 Películas Populares (React Components)
       </h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {
@@ -61,7 +64,7 @@ const popularTVShows = popularTVResponse.results.slice(0, 6);
   <section class="mb-8">
     <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
       <h2 class="text-2xl font-bold mb-6 text-primary-400">
-        🔥  Series Populares (React Components)
+        🔥 Series Populares (React Components)
       </h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {
@@ -95,43 +98,7 @@ const popularTVShows = popularTVResponse.results.slice(0, 6);
 
   <!-- Framework Comparison Section -->
   <section class="mb-8">
-    <div
-      class="bg-gradient-to-r from-gray-800 to-gray-900 p-6 rounded-lg shadow-lg"
-    >
-      <h2 class="text-2xl font-bold mb-6 text-center text-white">
-        Demostración de Frameworks
-      </h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-gray-700 p-4 rounded-lg text-center">
-          <div class="text-3xl mb-2"></div>
-          <h3 class="font-bold text-green-400 mb-2">Vue.js</h3>
-          <p class="text-sm text-gray-300">
-            Componente de búsqueda interactiva con watchlist
-          </p>
-        </div>
-        <div class="bg-gray-700 p-4 rounded-lg text-center">
-          <div class="text-3xl mb-2"></div>
-          <h3 class="font-bold text-orange-400 mb-2">Svelte</h3>
-          <p class="text-sm text-gray-300">
-            Widget de tendencias y watchlist con compilación optimizada
-          </p>
-        </div>
-        <div class="bg-gray-700 p-4 rounded-lg text-center">
-          <div class="text-3xl mb-2"></div>
-          <h3 class="font-bold text-purple-500 mb-2">Preact</h3>
-          <p class="text-sm text-gray-300">
-            Dashboard de estadísticas liviano y eficiente
-          </p>
-        </div>
-        <div class="bg-gray-700 p-4 rounded-lg text-center">
-          <div class="text-3xl mb-2"></div>
-          <h3 class="font-bold text-blue-300 mb-2">React.js</h3>
-          <p class="text-sm text-gray-300">
-            Listado de populares
-          </p>
-        </div>
-      </div>
-    </div>
+    <FrameworksDesc />
   </section>
 </Layout>
 

@@ -2,6 +2,7 @@
 // src/pages/watchlist.astro
 import Layout from '../layouts/Layout.astro';
 import WatchlistSvelte from '../components/WatchlistSvelte.svelte';
+import FrameworksDesc from '../components/FrameworksDesc.astro';
 ---
 
 <Layout title="Mi Watchlist - MovieDash">
@@ -9,9 +10,7 @@ import WatchlistSvelte from '../components/WatchlistSvelte.svelte';
   <section
     class="bg-gradient-to-r from-green-900 via-teal-900 to-blue-900 rounded-lg p-8 mb-8 text-center"
   >
-    <h1 class="text-4xl md:text-6xl font-bold text-white mb-4">
-      Mi Watchlist
-    </h1>
+    <h1 class="text-4xl md:text-6xl font-bold text-white mb-4">Mi Watchlist</h1>
     <p class="text-xl text-gray-200 mb-6">
       Gestiona tus películas y series pendientes de ver
     </p>
@@ -22,9 +21,7 @@ import WatchlistSvelte from '../components/WatchlistSvelte.svelte';
 
   <!-- Quick Actions Section -->
   <section class="mt-8 bg-gray-800 p-6 rounded-lg shadow-lg">
-    <h2 class="text-2xl font-bold mb-6 text-primary-400">
-     Acciones Rápidas
-    </h2>
+    <h2 class="text-2xl font-bold mb-6 text-primary-400">Acciones Rápidas</h2>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div class="bg-gray-700 p-4 rounded-lg text-center">
@@ -79,20 +76,28 @@ import WatchlistSvelte from '../components/WatchlistSvelte.svelte';
       Tips para Usar tu Watchlist
     </h2>
 
-      <div class="bg-gray-700 p-4 rounded-lg">
-        <h3 class="text-lg font-semibold text-blue-400 mb-3">
-          Organización
-        </h3>
-        <ul class="text-sm text-gray-300 space-y-2">
-          <li>
-            • Usa <strong>notas</strong> para recordar por qué agregaste la pelicula o serie
-          </li>
-          <li>• Puedes filtrar por <strong>tipo</strong> (películas vs series)</li>
-          <li>• Puedes ordenar por <strong>prioridad</strong> para saber que ver antes</li>
-          <li>• Marca como <strong>vista</strong> cuando termines para no confundirte</li>
-        </ul>
-      </div>
+    <div class="bg-gray-700 p-4 rounded-lg">
+      <h3 class="text-lg font-semibold text-blue-400 mb-3">Organización</h3>
+      <ul class="text-sm text-gray-300 space-y-2">
+        <li>
+          • Usa <strong>notas</strong> para recordar por qué agregaste la pelicula
+          o serie
+        </li>
+        <li>
+          • Puedes filtrar por <strong>tipo</strong> (películas vs series)
+        </li>
+        <li>
+          • Puedes ordenar por <strong>prioridad</strong> para saber que ver antes
+        </li>
+        <li>
+          • Marca como <strong>vista</strong> cuando termines para no confundirte
+        </li>
+      </ul>
     </div>
+  </section>
+  <br />
+  <section class="mb-8">
+    <FrameworksDesc />
   </section>
 </Layout>
 
