@@ -1,3 +1,9 @@
+
+cp .env.example .env para la key de la api
+
+
+
+
 # Astro Starter Kit: Basics
 
 ```sh
