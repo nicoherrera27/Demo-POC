@@ -23,24 +23,7 @@ const popularTVShows = popularTVResponse.results.slice(0, 6);
   <section
     class="bg-gradient-to-r from-primary-900 via-purple-900 to-blue-900 rounded-lg p-8 mb-8 text-center"
   >
-    <h1 class="text-4xl md:text-6xl font-bold text-white mb-4">🎬 MovieDash</h1>
-    <p class="text-xl text-gray-200 mb-6">
-      Demo técnica con Astro + Vue + Svelte + Preact + Solid
-    </p>
-    <div class="flex flex-wrap justify-center gap-4 text-sm">
-      <div class="bg-white bg-opacity-10 px-4 py-2 rounded-full">
-        🏝️ Astro Islands
-      </div>
-      <div class="bg-white bg-opacity-10 px-4 py-2 rounded-full">
-        💧 Hidratación Selectiva
-      </div>
-      <div class="bg-white bg-opacity-10 px-4 py-2 rounded-full">
-        🚀 Múltiples Frameworks
-      </div>
-      <div class="bg-white bg-opacity-10 px-4 py-2 rounded-full">
-        🎯 TypeScript
-      </div>
-    </div>
+    <h1 class="text-4xl md:text-6xl font-bold text-white mb-4">Wobbly Seat 😵💺</h1>
   </section>
 
   <!-- Framework Demonstrations Grid -->
@@ -63,7 +46,7 @@ const popularTVShows = popularTVResponse.results.slice(0, 6);
   <section class="mb-8">
     <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
       <h2 class="text-2xl font-bold mb-6 text-primary-400">
-        🔥 Películas Populares (React Components)
+        🔥  Películas Populares (React Components)
       </h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {
@@ -78,7 +61,7 @@ const popularTVShows = popularTVResponse.results.slice(0, 6);
   <section class="mb-8">
     <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
       <h2 class="text-2xl font-bold mb-6 text-primary-400">
-        📺 Series Populares (React Components)
+        🔥  Series Populares (React Components)
       </h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {
@@ -96,7 +79,7 @@ const popularTVShows = popularTVResponse.results.slice(0, 6);
       class="bg-gradient-to-r from-green-800 to-teal-800 p-6 rounded-lg shadow-lg text-center"
     >
       <h2 class="text-2xl font-bold mb-4 text-white">
-        📋 ¿Agregaste algo a tu Watchlist?
+        ¿Agregaste algo a tu Watchlist?
       </h2>
       <p class="text-green-200 mb-6">
         Organiza tus películas y series pendientes con prioridades y notas
@@ -105,7 +88,7 @@ const popularTVShows = popularTVResponse.results.slice(0, 6);
         href="/watchlist"
         class="bg-white text-green-800 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-flex items-center gap-2"
       >
-        📋 Ver Mi Watchlist
+        Ver Mi Watchlist
       </a>
     </div>
   </section>
@@ -116,35 +99,35 @@ const popularTVShows = popularTVResponse.results.slice(0, 6);
       class="bg-gradient-to-r from-gray-800 to-gray-900 p-6 rounded-lg shadow-lg"
     >
       <h2 class="text-2xl font-bold mb-6 text-center text-white">
-        🔧 Demostración de Frameworks
+        Demostración de Frameworks
       </h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-gray-700 p-4 rounded-lg text-center">
-          <div class="text-3xl mb-2">⚡</div>
+          <div class="text-3xl mb-2"></div>
           <h3 class="font-bold text-green-400 mb-2">Vue.js</h3>
           <p class="text-sm text-gray-300">
             Componente de búsqueda interactiva con watchlist
           </p>
         </div>
         <div class="bg-gray-700 p-4 rounded-lg text-center">
-          <div class="text-3xl mb-2">🎯</div>
+          <div class="text-3xl mb-2"></div>
           <h3 class="font-bold text-orange-400 mb-2">Svelte</h3>
           <p class="text-sm text-gray-300">
             Widget de tendencias y watchlist con compilación optimizada
           </p>
         </div>
         <div class="bg-gray-700 p-4 rounded-lg text-center">
-          <div class="text-3xl mb-2">⚛️</div>
-          <h3 class="font-bold text-blue-400 mb-2">Preact</h3>
+          <div class="text-3xl mb-2"></div>
+          <h3 class="font-bold text-purple-500 mb-2">Preact</h3>
           <p class="text-sm text-gray-300">
             Dashboard de estadísticas liviano y eficiente
           </p>
         </div>
         <div class="bg-gray-700 p-4 rounded-lg text-center">
-          <div class="text-3xl mb-2">💎</div>
-          <h3 class="font-bold text-blue-500 mb-2">Solid.js</h3>
+          <div class="text-3xl mb-2"></div>
+          <h3 class="font-bold text-blue-300 mb-2">React.js</h3>
           <p class="text-sm text-gray-300">
-            Carrusel top-rated y calculadora con granular reactivity
+            Listado de populares
           </p>
         </div>
       </div>
@@ -163,12 +146,12 @@ const popularTVShows = popularTVResponse.results.slice(0, 6);
   // Cargar el store de watchlist
   import('../lib/watchlistStore')
     .then(({ watchlistStore, WatchlistEvents }) => {
-      console.log('🚀 Homepage: Store loaded');
+      console.log('Homepage: Store loaded');
       WatchlistEvents.setupGlobalListeners();
       window.watchlistStore = watchlistStore;
-      console.log('✅ Homepage ready');
+      console.log('Homepage ready');
     })
     .catch((error) => {
-      console.error('❌ Error loading watchlist store:', error);
+      console.error('Error loading watchlist store:', error);
     });
 </script>

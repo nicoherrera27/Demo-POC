@@ -52,7 +52,7 @@ export default function StatsWidget() {
     return (
       <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
         <div class="text-center py-8">
-          <div class="text-primary-400">🔄 Cargando estadísticas...</div>
+          <div class="text-primary-400">Cargando estadísticas...</div>
         </div>
       </div>
     );
@@ -62,7 +62,7 @@ export default function StatsWidget() {
     return (
       <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
         <div class="text-center py-8 text-red-400">
-          ❌ Error cargando estadísticas
+          Error cargando estadísticas
         </div>
       </div>
     );
@@ -71,28 +71,28 @@ export default function StatsWidget() {
   const metrics = [
     {
       id: 'movies' as const,
-      label: '🎬 Películas',
+      label: 'Películas',
       value: stats.totalMovies.toLocaleString(),
       subtitle: 'Total disponibles',
       color: 'text-blue-400'
     },
     {
       id: 'tv' as const,
-      label: '📺 Series',
+      label: 'Series',
       value: stats.totalTVShows.toLocaleString(),
       subtitle: 'Total disponibles',
       color: 'text-green-400'
     },
     {
       id: 'ratings' as const,
-      label: '⭐ Rating Promedio',
+      label: 'Rating Promedio',
       value: `${stats.avgMovieRating.toFixed(1)} / ${stats.avgTVRating.toFixed(1)}`,
       subtitle: 'Películas / Series',
       color: 'text-yellow-400'
     },
     {
       id: 'genres' as const,
-      label: '🎭 Géneros Top',
+      label: 'Géneros Top',
       value: stats.topGenres.length.toString(),
       subtitle: 'Categorías principales',
       color: 'text-purple-400'
@@ -102,7 +102,7 @@ export default function StatsWidget() {
   return (
     <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
       <h2 class="text-2xl font-bold mb-6 text-primary-400">
-        📊 Estadísticas (Preact Component)
+        Estadísticas (Preact Component)
       </h2>
 
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -133,7 +133,7 @@ export default function StatsWidget() {
       <div class="bg-gray-700 p-4 rounded-lg">
         {activeMetric === 'movies' && (
           <div>
-            <h3 class="text-lg font-semibold text-blue-400 mb-3">🎬 Detalles de Películas</h3>
+            <h3 class="text-lg font-semibold text-blue-400 mb-3">Detalles de Películas</h3>
             <div class="space-y-2 text-sm">
               <div class="flex justify-between">
                 <span class="text-gray-300">Total en base de datos:</span>
@@ -141,11 +141,11 @@ export default function StatsWidget() {
               </div>
               <div class="flex justify-between">
                 <span class="text-gray-300">Rating promedio:</span>
-                <span class="text-white font-medium">⭐ {stats.avgMovieRating.toFixed(2)}</span>
+                <span class="text-white font-medium">{stats.avgMovieRating.toFixed(2)}</span>
               </div>
               <div class="flex justify-between">
                 <span class="text-gray-300">Categoría más popular:</span>
-                <span class="text-white font-medium">🎭 Acción</span>
+                <span class="text-white font-medium">Acción</span>
               </div>
             </div>
           </div>
@@ -153,7 +153,7 @@ export default function StatsWidget() {
 
         {activeMetric === 'tv' && (
           <div>
-            <h3 class="text-lg font-semibold text-green-400 mb-3">📺 Detalles de Series</h3>
+            <h3 class="text-lg font-semibold text-green-400 mb-3">Detalles de Series</h3>
             <div class="space-y-2 text-sm">
               <div class="flex justify-between">
                 <span class="text-gray-300">Total en base de datos:</span>
@@ -161,11 +161,11 @@ export default function StatsWidget() {
               </div>
               <div class="flex justify-between">
                 <span class="text-gray-300">Rating promedio:</span>
-                <span class="text-white font-medium">⭐ {stats.avgTVRating.toFixed(2)}</span>
+                <span class="text-white font-medium">{stats.avgTVRating.toFixed(2)}</span>
               </div>
               <div class="flex justify-between">
                 <span class="text-gray-300">Categoría más popular:</span>
-                <span class="text-white font-medium">🎭 Drama</span>
+                <span class="text-white font-medium">Drama</span>
               </div>
             </div>
           </div>
@@ -173,7 +173,7 @@ export default function StatsWidget() {
 
         {activeMetric === 'ratings' && (
           <div>
-            <h3 class="text-lg font-semibold text-yellow-400 mb-3">⭐ Análisis de Ratings</h3>
+            <h3 class="text-lg font-semibold text-yellow-400 mb-3">Análisis de Ratings</h3>
             <div class="space-y-3">
               <div class="flex items-center gap-4">
                 <span class="text-gray-300 w-20">Películas:</span>
@@ -201,7 +201,7 @@ export default function StatsWidget() {
 
         {activeMetric === 'genres' && (
           <div>
-            <h3 class="text-lg font-semibold text-purple-400 mb-3">🎭 Géneros Populares</h3>
+            <h3 class="text-lg font-semibold text-purple-400 mb-3">Géneros Populares</h3>
             <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
               {stats.topGenres.map((genre, index) => (
                 <div 
@@ -216,8 +216,8 @@ export default function StatsWidget() {
         )}
 
         <div class="mt-4 pt-3 border-t border-gray-600">
-          <div class="text-xs text-gray-500 text-right">
-            Preact Component • Datos actualizados en tiempo real
+          <div class="text-xs text-gray-400 text-right">
+            Preact Component
           </div>
         </div>
       </div>

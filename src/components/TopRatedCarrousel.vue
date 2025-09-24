@@ -15,7 +15,7 @@
               : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
           ]"
         >
-          🎬 Películas ({{ topMovies.length }})
+          Películas ({{ topMovies.length }})
         </button>
         <button
           @click="switchTab('tv')"
@@ -26,14 +26,14 @@
               : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
           ]"
         >
-          📺 Series ({{ topTVShows.length }})
+          Series ({{ topTVShows.length }})
         </button>
       </div>
     </div>
 
     <div v-if="loading" class="text-center py-12">
       <div class="text-purple-400 text-lg mb-2">
-        🔄 Cargando contenido mejor valorado...
+        Cargando contenido mejor valorado...
       </div>
       <div class="text-gray-400 text-sm">
         Conectando con TMDB API
@@ -42,13 +42,13 @@
 
     <div v-else-if="error" class="text-center py-12">
       <div class="text-red-400 text-lg mb-4">
-        ❌ {{ error }}
+        {{ error }}
       </div>
       <button 
         @click="fetchData"
         class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors"
       >
-        🔄 Reintentar
+        Reintentar
       </button>
     </div>
 
@@ -102,10 +102,10 @@
                   <div class="absolute bottom-2 left-2 right-2">
                     <div class="text-white text-sm">
                       <div class="font-bold mb-1">
-                        ⭐ {{ item.vote_average.toFixed(1) }}
+                        {{ item.vote_average.toFixed(1) }}
                       </div>
                       <div class="text-xs opacity-75">
-                        👥 {{ item.vote_count.toLocaleString() }} votos
+                        {{ item.vote_count.toLocaleString() }} votos
                       </div>
                     </div>
                   </div>
@@ -121,7 +121,7 @@
                   {{ getTitle(item) }}
                 </h3>
                 <p class="text-gray-400 text-xs mb-2">
-                  📅 {{ getReleaseYear(item) }}
+                  {{ getReleaseYear(item) }}
                 </p>
                 
                 <div class="flex items-center justify-between mb-3">
@@ -132,7 +132,7 @@
                     </span>
                   </div>
                   <span class="text-xs text-gray-500">
-                    {{ activeTab === 'movies' ? '🎬' : '📺' }}
+                    {{ activeTab === 'movies' ? 'Pelicula' : 'Serie' }}
                   </span>
                 </div>
 
@@ -147,10 +147,10 @@
                   class="w-full text-white px-2 py-1 rounded text-xs transition-colors"
                 >
                   <span v-if="watchlistLoading[getItemKey(item.id, activeTab)]">
-                    🔄 Cargando...
+                    Cargando...
                   </span>
                   <span v-else-if="isInWatchlist(item.id, activeTab)">
-                    🗑 Eliminar
+                    Eliminar
                   </span>
                   <span v-else>
                     ➕ Watchlist
@@ -179,10 +179,10 @@
       <div class="mt-6 bg-gray-700 rounded-lg p-4">
         <div class="flex justify-between items-center text-sm">
           <div class="text-gray-300">
-            📊 Mostrando contenido mejor valorado ({{ getCurrentItems().length }} elementos)
+            Mostrando contenido mejor valorado ({{ getCurrentItems().length }} elementos)
           </div>
           <div class="text-purple-400 font-medium">
-            {{ activeTab === 'movies' ? '🎬 Películas' : '📺 Series' }} • Vue.js Component
+            {{ activeTab === 'movies' ? 'Películas' : 'Series' }} • Vue.js Component
           </div>
         </div>
       </div>
@@ -190,7 +190,7 @@
 
     <div v-else class="text-center py-12">
       <div class="text-gray-400 text-lg mb-4">
-        📭 No hay contenido disponible
+        No hay contenido disponible
       </div>
       <div class="text-gray-500 text-sm">
         Verifica la configuración de la API

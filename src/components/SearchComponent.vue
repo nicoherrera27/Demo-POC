@@ -1,6 +1,6 @@
 <template>
   <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
-    <h2 class="text-2xl font-bold mb-4 text-primary-400">🔍 Buscar (Vue Component)</h2>
+    <h2 class="text-2xl font-bold mb-4 text-primary-400">Buscar (Vue Component)</h2>
     
     <div class="flex gap-4 mb-6">
       <div class="flex-1">
@@ -23,7 +23,7 @@
               : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
           ]"
         >
-          🎬 Películas
+          Películas
         </button>
         <button
           @click="() => { searchType = 'tv'; handleSearch(); }"
@@ -34,13 +34,13 @@
               : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
           ]"
         >
-          📺 Series
+          Series
         </button>
       </div>
     </div>
 
     <div v-if="loading" class="text-center py-8">
-      <div class="text-primary-400">🔄 Buscando...</div>
+      <div class="text-primary-400">Buscando...</div>
     </div>
 
     <div v-else-if="searchResults.length > 0" class="space-y-4">
@@ -52,7 +52,7 @@
           href="/watchlist" 
           class="text-primary-400 hover:text-primary-300 text-sm flex items-center gap-2"
         >
-          📋 Ver Watchlist
+          Ver Watchlist
         </a>
       </div>
       
@@ -82,12 +82,12 @@
                 {{ getTitle(item) }}
               </h4>
               <p class="text-sm text-gray-400 mb-2">
-                📅 {{ getReleaseYear(item) }}
+                {{ getReleaseYear(item) }}
               </p>
               <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-3">
                   <span class="text-primary-400 text-sm">
-                    ⭐ {{ item.vote_average.toFixed(1) }}
+                    {{ item.vote_average.toFixed(1) }}
                   </span>
                   <span class="text-xs text-gray-500">
                     {{ searchType === 'movie' ? '🎬' : '📺' }}
@@ -112,10 +112,10 @@
                 class="w-full text-white px-3 py-2 rounded text-sm transition-all font-medium"
               >
                 <span v-if="watchlistLoading[getItemKey(item.id, searchType)]">
-                  🔄 Cargando...
+                  Cargando...
                 </span>
                 <span v-else-if="isInWatchlist(item.id, searchType)">
-                  🗑 Eliminar de Watchlist
+                  Eliminar de Watchlist
                 </span>
                 <span v-else>
                   ➕ Agregar a Watchlist
@@ -130,28 +130,28 @@
       <div v-if="hasItemsInWatchlist" class="mt-6 bg-primary-900 bg-opacity-30 p-4 rounded-lg border border-primary-600">
         <div class="flex items-center justify-between">
           <div class="text-primary-300">
-            <span class="text-sm font-medium">✨ Tienes {{ watchlistItemsCount }} elementos en tu watchlist</span>
+            <span class="text-sm font-medium">Tienes {{ watchlistItemsCount }} elementos en tu watchlist</span>
           </div>
           <a 
             href="/watchlist" 
             class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg text-sm transition-colors font-medium"
           >
-            📋 Ver Watchlist
+            Ver Watchlist
           </a>
         </div>
       </div>
     </div>
 
     <div v-else-if="searchQuery && !loading" class="text-center py-8 text-gray-400">
-      <div class="text-4xl mb-4">❌</div>
+      <div class="text-4xl mb-4"></div>
       <div class="text-lg mb-2">No se encontraron resultados</div>
       <div class="text-sm">Intenta con otros términos de búsqueda</div>
     </div>
     
     <!-- Estado inicial -->
     <div v-else class="text-center py-8 text-gray-400">
-      <div class="text-4xl mb-4">🎬</div>
-      <div class="text-lg mb-2">¿Qué quieres ver?</div>
+      <div class="text-4xl mb-4"></div>
+      <div class="text-lg mb-2">¿Qué queres ver?</div>
       <div class="text-sm">Busca películas y series para agregarlas a tu watchlist</div>
     </div>
   </div>
@@ -215,9 +215,9 @@ const updateWatchlistState = async (): Promise<void> => {
     })
     
     watchlistItems.value = newSet
-    console.log('🔄 Vue Search: Updated watchlist state, items:', newSet.size)
+    console.log('Vue Search: Updated watchlist state, items:', newSet.size)
   } catch (error) {
-    console.error('❌ Vue Search: Error updating watchlist state:', error)
+    console.error('Vue Search: Error updating watchlist state:', error)
   }
 }
 
@@ -229,7 +229,7 @@ const handleWatchlistAction = async (item: Movie | TVShow, type: SearchType): Pr
     // Activar loading para este item específico
     watchlistLoading.value = { ...watchlistLoading.value, [itemKey]: true }
     
-    console.log('🎬 Vue Search: Processing watchlist action for:', getTitle(item), type)
+    console.log('Vue Search: Processing watchlist action for:', getTitle(item), type)
     
     // Importar dinámicamente el store
     const { watchlistStore } = await import('../lib/watchlistStore')
@@ -240,26 +240,26 @@ const handleWatchlistAction = async (item: Movie | TVShow, type: SearchType): Pr
     let success = false
     if (isAlreadyInWatchlist) {
       // Remover de watchlist
-      console.log('🗑️ Vue Search: Removing from watchlist:', getTitle(item))
+      console.log('Vue Search: Removing from watchlist:', getTitle(item))
       success = watchlistStore.removeFromWatchlist(item.id, type)
       if (success) {
-        console.log('✅ Vue Search: Successfully removed:', getTitle(item))
+        console.log('Vue Search: Successfully removed:', getTitle(item))
       }
     } else {
       // Agregar a watchlist
       console.log('➕ Vue Search: Adding to watchlist:', getTitle(item))
       success = watchlistStore.addToWatchlist(item, type)
       if (success) {
-        console.log('✅ Vue Search: Successfully added:', getTitle(item))
+        console.log('Vue Search: Successfully added:', getTitle(item))
       } else {
-        console.log('⚠️ Vue Search: Item already in watchlist:', getTitle(item))
+        console.log('Vue Search: Item already in watchlist:', getTitle(item))
       }
     }
     
     // El estado se actualizará automáticamente via suscripción al store
     
   } catch (error) {
-    console.error('❌ Vue Search: Error with watchlist action:', error)
+    console.error('Vue Search: Error with watchlist action:', error)
   } finally {
     // Desactivar loading
     const newLoading = { ...watchlistLoading.value }
@@ -282,9 +282,9 @@ const performSearch = async () => {
       : await tmdbApi.searchTVShows(searchQuery.value.trim())
     
     searchResults.value = response.results.slice(0, 12)
-    console.log('✅ Vue Search: Found', searchResults.value.length, 'results')
+    console.log('Vue Search: Found', searchResults.value.length, 'results')
   } catch (error) {
-    console.error('❌ Vue Search: Error searching:', error)
+    console.error('Vue Search: Error searching:', error)
     searchResults.value = []
   } finally {
     loading.value = false
@@ -304,7 +304,7 @@ const handleSearch = () => {
 
 // Lifecycle hooks
 onMounted(async () => {
-  console.log('🚀 Vue Search: Component mounted')
+  console.log('Vue Search: Component mounted')
   
   // Cargar estado inicial de watchlist
   await updateWatchlistState()
@@ -313,17 +313,17 @@ onMounted(async () => {
   try {
     const { watchlistStore } = await import('../lib/watchlistStore')
     storeUnsubscribe = watchlistStore.subscribe(() => {
-      console.log('🔄 Vue Search: Received store update notification')
+      console.log('Vue Search: Received store update notification')
       updateWatchlistState()
     })
-    console.log('✅ Vue Search: Successfully subscribed to watchlist store')
+    console.log('Vue Search: Successfully subscribed to watchlist store')
   } catch (error) {
-    console.error('❌ Vue Search: Error subscribing to store:', error)
+    console.error('Vue Search: Error subscribing to store:', error)
   }
 })
 
 onUnmounted(() => {
-  console.log('🧹 Vue Search: Component cleanup')
+  console.log('Vue Search: Component cleanup')
   
   if (searchTimeout) {
     clearTimeout(searchTimeout)

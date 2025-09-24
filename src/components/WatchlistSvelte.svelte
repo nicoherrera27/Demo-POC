@@ -31,7 +31,7 @@
   $: filteredItems = (() => {
     let items = [...watchlist];
     
-    console.log('🔍 Svelte: Filtering items:', {
+    console.log('Svelte: Filtering items:', {
       totalItems: items.length,
       filter: filter,
       items: items.map(i => ({ id: i.id, title: i.title, type: i.type, watched: i.isWatched }))
@@ -74,7 +74,7 @@
         break;
     }
 
-    console.log('✅ Svelte: Filtered result:', {
+    console.log('Svelte: Filtered result:', {
       filteredCount: items.length,
       filter: filter,
       sort: sortBy
@@ -90,7 +90,7 @@
       const currentWatchlist = watchlistStore.getWatchlist();
       const currentStats = watchlistStore.getStats();
       
-      console.log('🔄 Svelte: Updating from store:', {
+      console.log('Svelte: Updating from store:', {
         items: currentWatchlist.length,
         stats: currentStats
       });
@@ -102,38 +102,38 @@
         isInitialized = true;
       }
     } catch (error) {
-      console.error('❌ Svelte: Error updating from store:', error);
+      console.error('Svelte: Error updating from store:', error);
     }
   };
 
   // Actions
   const toggleWatched = async (id: number, type: 'movie' | 'tv'): Promise<void> => {
     try {
-      console.log('👁️ Svelte: Toggling watched:', id, type);
+      console.log('Svelte: Toggling watched:', id, type);
       const { watchlistStore } = await import('../lib/watchlistStore');
       watchlistStore.toggleWatched(id, type);
     } catch (error) {
-      console.error('❌ Svelte: Error toggling watched:', error);
+      console.error('Svelte: Error toggling watched:', error);
     }
   };
 
   const removeFromWatchlist = async (id: number, type: 'movie' | 'tv'): Promise<void> => {
     try {
-      console.log('🗑️ Svelte: Removing item:', id, type);
+      console.log('Svelte: Removing item:', id, type);
       const { watchlistStore } = await import('../lib/watchlistStore');
       watchlistStore.removeFromWatchlist(id, type);
     } catch (error) {
-      console.error('❌ Svelte: Error removing item:', error);
+      console.error('Svelte: Error removing item:', error);
     }
   };
 
   const setPriority = async (id: number, type: 'movie' | 'tv', priority: 'high' | 'medium' | 'low'): Promise<void> => {
     try {
-      console.log('🎯 Svelte: Setting priority:', id, type, priority);
+      console.log('Svelte: Setting priority:', id, type, priority);
       const { watchlistStore } = await import('../lib/watchlistStore');
       watchlistStore.setPriority(id, type, priority);
     } catch (error) {
-      console.error('❌ Svelte: Error setting priority:', error);
+      console.error('Svelte: Error setting priority:', error);
     }
   };
 
@@ -142,13 +142,13 @@
       const { watchlistStore } = await import('../lib/watchlistStore');
       watchlistStore.updateNotes(id, type, notes);
     } catch (error) {
-      console.error('❌ Svelte: Error updating notes:', error);
+      console.error('Svelte: Error updating notes:', error);
     }
   };
 
   // Lifecycle
   onMount(async () => {
-    console.log('🚀 Svelte: WatchlistSvelte component mounted');
+    console.log('Svelte: WatchlistSvelte component mounted');
     
     // 1. Cargar datos inmediatamente
     await updateFromStore();
@@ -158,7 +158,7 @@
       const { watchlistStore } = await import('../lib/watchlistStore');
       
       unsubscribe = watchlistStore.subscribe((newWatchlist: WatchlistItem[], newStats: WatchlistStats) => {
-        console.log('📡 Svelte: Store subscription triggered:', {
+        console.log('Svelte: Store subscription triggered:', {
           items: newWatchlist.length,
           stats: newStats
         });
@@ -167,15 +167,15 @@
         stats = { ...newStats };
       });
 
-      console.log('✅ Svelte: Successfully subscribed to store');
+      console.log('Svelte: Successfully subscribed to store');
     } catch (error) {
-      console.error('❌ Svelte: Error subscribing to store:', error);
+      console.error('Svelte: Error subscribing to store:', error);
     }
 
     // 3. Escuchar eventos del storage
     const handleStorageChange = (e: StorageEvent): void => {
       if (e.key === 'movieDashWatchlist') {
-        console.log('💾 Svelte: Storage changed, updating...');
+        console.log('Svelte: Storage changed, updating...');
         setTimeout(() => updateFromStore(), 100);
       }
     };
@@ -184,7 +184,7 @@
 
     // 4. Escuchar eventos personalizados
     const handleForceUpdate = (): void => {
-      console.log('🔄 Svelte: Force update triggered');
+      console.log('Svelte: Force update triggered');
       updateFromStore();
     };
     
@@ -197,39 +197,39 @@
 
     // Cleanup en onDestroy
     onDestroy(() => {
-      console.log('🧹 Svelte: Component cleanup');
+      console.log('Svelte: Component cleanup');
       if (unsubscribe) unsubscribe();
       if (refreshInterval) clearInterval(refreshInterval);
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('watchlist:forceUpdate', handleForceUpdate);
     });
 
-    console.log('✅ Svelte: Component fully initialized');
+    console.log('Svelte: Component fully initialized');
   });
 </script>
 
 <div class="bg-gradient-to-br from-green-900 via-teal-900 to-blue-900 p-6 rounded-lg shadow-lg">
   <div class="flex items-center justify-between mb-6">
     <h2 class="text-2xl font-bold text-green-300">
-      📋 Mi Watchlist (Svelte Component)
+      Mi Watchlist (Svelte Component)
     </h2>
     
     <div class="flex gap-2">
       <select 
         bind:value={filter}
-        on:change={() => console.log('🎛️ Svelte: Filter changed to:', filter)}
+        on:change={() => console.log('Svelte: Filter changed to:', filter)}
         class="bg-gray-700 text-white px-3 py-1 rounded text-sm border border-gray-600"
       >
         <option value="all">Todas ({stats.total})</option>
         <option value="unwatched">Sin ver ({stats.unwatched})</option>
         <option value="watched">Vistas ({stats.watched})</option>
-        <option value="movie">🎬 Películas ({stats.movies})</option>
-        <option value="tv">📺 Series ({stats.tvShows})</option>
+        <option value="movie">Películas ({stats.movies})</option>
+        <option value="tv">Series ({stats.tvShows})</option>
       </select>
       
       <select 
         bind:value={sortBy}
-        on:change={() => console.log('🎛️ Svelte: Sort changed to:', sortBy)}
+        on:change={() => console.log('Svelte: Sort changed to:', sortBy)}
         class="bg-gray-700 text-white px-3 py-1 rounded text-sm border border-gray-600"
       >
         <option value="dateAdded">Fecha agregada</option>
@@ -259,12 +259,12 @@
     
     <div class="bg-black bg-opacity-30 p-4 rounded-lg text-center border border-gray-700">
       <div class="text-2xl font-bold text-purple-300">{stats.avgRating.toFixed(1)}</div>
-      <div class="text-xs text-gray-300">★ Promedio</div>
+      <div class="text-xs text-gray-300">Promedio</div>
     </div>
     
     <div class="bg-black bg-opacity-30 p-4 rounded-lg text-center border border-gray-700">
       <div class="text-2xl font-bold text-pink-300">{stats.watchedAvgRating.toFixed(1)}</div>
-      <div class="text-xs text-gray-300">★ Vistas</div>
+      <div class="text-xs text-gray-300">Vistas</div>
     </div>
   </div>
 
@@ -296,24 +296,14 @@
                   </h3>
                   
                   <div class="flex items-center gap-3 text-xs text-gray-400 mb-2">
-                    <span>📅 {item.year}</span>
-                    <span>⭐ {item.vote_average.toFixed(1)}</span>
+                    <span>{item.year}</span>
+                    <span>⭐{item.vote_average.toFixed(1)}</span>
                     <span>{item.type === 'movie' ? '🎬' : '📺'}</span>
                     <span class="{item.isWatched ? 'text-green-400' : 'text-yellow-400'}">
-                      {item.isWatched ? '✓ Vista' : '⏳ Pendiente'}
+                      {item.isWatched ? '✓ Vista' : 'Pendiente'}
                     </span>
                   </div>
                 </div>
-                
-                <select 
-                  value={item.priority}
-                  on:change={(e) => setPriority(item.id, item.type, e.target.value)}
-                  class="bg-gray-700 text-white text-xs rounded px-2 py-1 border border-gray-600"
-                >
-                  <option value="low">🟢 Baja</option>
-                  <option value="medium">⚡ Media</option>
-                  <option value="high">🔥 Alta</option>
-                </select>
               </div>
               
               {#if item.overview}
@@ -345,14 +335,14 @@
                   on:click={() => toggleWatched(item.id, item.type)}
                   class="px-2 py-1 rounded text-xs transition-all {item.isWatched ? 'bg-green-600 hover:bg-green-700' : 'bg-yellow-600 hover:bg-yellow-700'} text-white hover:scale-105"
                 >
-                  {item.isWatched ? '✓ Vista' : '👁 Marcar vista'}
+                  {item.isWatched ? '✓ Vista' : 'Marcar vista'}
                 </button>
                 
                 <button
                   on:click={() => removeFromWatchlist(item.id, item.type)}
                   class="px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs transition-all hover:scale-105"
                 >
-                  🗑 Eliminar
+                  Eliminar
                 </button>
               </div>
             </div>
@@ -363,7 +353,7 @@
   {:else}
     <div class="text-center py-12 bg-gray-800 bg-opacity-50 rounded-lg border border-gray-700">
       <div class="text-4xl mb-4">
-        {#if !isInitialized}⏳{:else if stats.total === 0}📭{:else}🔍{/if}
+        {#if !isInitialized}{:else if stats.total === 0}{:else}{/if}
       </div>
       <div class="text-gray-400 text-lg mb-4">
         {#if !isInitialized}
@@ -371,14 +361,14 @@
         {:else if stats.total === 0}
           Tu watchlist está vacía
         {:else}
-          No hay elementos para el filtro "{filter}"
+          No hay elementos para el filtro seleccionado
         {/if}
       </div>
       <div class="text-gray-500 text-sm">
         {#if !isInitialized}
           Conectando con el store...
         {:else if stats.total === 0}
-          Agrega películas y series usando los botones ➕ en otros componentes
+          Agrega películas y series usando el boton ➕
         {:else}
           Prueba cambiando el filtro o agregando más contenido
         {/if}
@@ -390,15 +380,10 @@
   <div class="mt-6 pt-4 border-t border-gray-700">
     <div class="flex justify-between items-center text-sm">
       <div class="text-gray-300">
-        📊 {stats.movies} películas • {stats.tvShows} series • {stats.watched}/{stats.total} vistas
-        {#if stats.total > 0}
-          <span class="ml-4 text-xs text-gray-500">
-            Promedio: ⭐{stats.avgRating.toFixed(1)} • Vistas: ⭐{stats.watchedAvgRating.toFixed(1)}
-          </span>
-        {/if}
+        {stats.movies} películas | {stats.tvShows} series | {stats.watched}/{stats.total} vistas
       </div>
       <div class="text-green-300 font-medium">
-        Svelte Component • Estado global compartido • TS
+        Svelte Component
       </div>
     </div>
   </div>

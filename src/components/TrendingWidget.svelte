@@ -43,27 +43,27 @@ import type { Movie, TVShow } from '../types/movies.ts';
 
 <div class="bg-gradient-to-r from-purple-900 to-blue-900 p-6 rounded-lg shadow-lg">
   <div class="flex items-center justify-between mb-6">
-    <h2 class="text-2xl font-bold text-white">🔥 Tendencias (Svelte Component)</h2>
+    <h2 class="text-2xl font-bold text-white">📈 Tendencias (Svelte Component)</h2>
     
     <div class="flex gap-2">
       <button
         class="px-4 py-2 rounded-lg font-medium transition-all {activeTab === 'movies' ? 'bg-white text-purple-900' : 'bg-purple-700 text-white hover:bg-purple-600'}"
         on:click={() => { activeTab = 'movies'; currentSlide = 0; }}
       >
-        🎬 Películas
+        Películas
       </button>
       <button
         class="px-4 py-2 rounded-lg font-medium transition-all {activeTab === 'tv' ? 'bg-white text-purple-900' : 'bg-purple-700 text-white hover:bg-purple-600'}"
         on:click={() => { activeTab = 'tv'; currentSlide = 0; }}
       >
-        📺 Series
+        Series
       </button>
     </div>
   </div>
 
   {#if loading}
     <div class="text-center py-12">
-      <div class="text-white text-lg">🔄 Cargando tendencias...</div>
+      <div class="text-white text-lg">Cargando tendencias...</div>
     </div>
   {:else}
     <div class="relative overflow-hidden">
@@ -101,6 +101,26 @@ import type { Movie, TVShow } from '../types/movies.ts';
           </div>
         {/each}
       </div>
+      
+      <button
+        class="absolute left-0 top-1/2 transform -translate-y-1/2 z-20 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-3 rounded-full transition-all"
+        on:click={() => {
+          const maxSlides = activeTab === 'movies' ? trendingMovies.length : trendingTVShows.length;
+          currentSlide = (currentSlide - 1 + Math.max(1, maxSlides - 2)) % Math.max(1, maxSlides - 2);
+        }}
+      >
+        ◀
+      </button>
+
+      <button
+        class="absolute right-0 top-1/2 transform -translate-y-1/2 z-20 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-3 rounded-full transition-all"
+        on:click={() => {
+          const maxSlides = activeTab === 'movies' ? trendingMovies.length : trendingTVShows.length;
+          currentSlide = (currentSlide + 1) % Math.max(1, maxSlides - 2);
+        }}
+      >
+        ▶ 
+      </button>      
 
       <!-- Navigation dots -->
       <div class="flex justify-center mt-4 gap-2">

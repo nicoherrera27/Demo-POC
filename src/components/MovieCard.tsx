@@ -21,7 +21,7 @@ export default function MovieCard({ item, type }: Props) {
         const { watchlistStore } = await import('../lib/watchlistStore');
         const inWatchlist = watchlistStore.isInWatchlist(item.id, type);
         setIsInWatchlist(inWatchlist);
-        console.log('🔍 MovieCard: Initial status for', title, ':', inWatchlist);
+        console.log('MovieCard: Initial status for', title, ':', inWatchlist);
       } catch (error) {
         console.error('Error checking initial status:', error);
       }
@@ -47,7 +47,7 @@ export default function MovieCard({ item, type }: Props) {
         unsubscribe = watchlistStore.subscribe(() => {
           const inWatchlist = watchlistStore.isInWatchlist(item.id, type);
           setIsInWatchlist(inWatchlist);
-          console.log('🔄 MovieCard: Status updated for', title, ':', inWatchlist);
+          console.log('MovieCard: Status updated for', title, ':', inWatchlist);
         });
       } catch (error) {
         console.error('Error setting up listener:', error);
@@ -68,24 +68,24 @@ export default function MovieCard({ item, type }: Props) {
       
       if (isInWatchlist) {
         // Remover de watchlist
-        console.log('🗑️ MovieCard: Removing from watchlist:', title, type);
+        console.log('MovieCard: Removing from watchlist:', title, type);
         const success = watchlistStore.removeFromWatchlist(item.id, type);
         if (success) {
-          console.log('✅ MovieCard: Successfully removed:', title);
+          console.log('MovieCard: Successfully removed:', title);
         }
       } else {
         // Agregar a watchlist
-        console.log('🎬 MovieCard: Adding to watchlist:', title, type);
+        console.log('MovieCard: Adding to watchlist:', title, type);
         const success = watchlistStore.addToWatchlist(item, type);
         if (success) {
-          console.log('✅ MovieCard: Successfully added:', title);
+          console.log('MovieCard: Successfully added:', title);
         } else {
-          console.log('⚠️ MovieCard: Item already in watchlist:', title);
+          console.log('MovieCard: Item already in watchlist:', title);
         }
       }
       
     } catch (error) {
-      console.error('❌ MovieCard: Error with watchlist action:', error);
+      console.error('MovieCard: Error with watchlist action:', error);
     } finally {
       setIsLoading(false);
     }
@@ -100,20 +100,20 @@ export default function MovieCard({ item, type }: Props) {
           class="w-full h-64 object-cover"
         />
         <div class="absolute top-2 right-2 bg-primary-600 text-white px-2 py-1 rounded text-sm font-bold">
-          ⭐ {item.vote_average.toFixed(1)}
+         {item.vote_average.toFixed(1)}
         </div>
       </div>
       
       <div class="p-4">
         <h3 class="text-lg font-semibold mb-2 line-clamp-2">{title}</h3>
         <p class="text-gray-400 text-sm mb-2">
-          📅 {new Date(releaseDate).getFullYear()}
+         {new Date(releaseDate).getFullYear()}
         </p>
         <p class="text-gray-300 text-sm line-clamp-3 mb-4">{item.overview}</p>
         
         <div class="flex justify-between items-center mb-4">
           <span class="text-xs bg-gray-700 px-2 py-1 rounded">
-            {type === 'movie' ? '🎬 Película' : '📺 Serie'}
+            {type === 'movie' ? 'Película' : 'Serie'}
           </span>
           <span class="text-xs text-gray-500">
             React Component
@@ -131,9 +131,9 @@ export default function MovieCard({ item, type }: Props) {
           } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           {isLoading ? (
-            <>🔄 Cargando...</>
+            <>Cargando...</>
           ) : isInWatchlist ? (
-            <>🗑️ Eliminar de Watchlist</>
+            <>Eliminar de Watchlist</>
           ) : (
             <>➕ Agregar a Watchlist</>
           )}
