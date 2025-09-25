@@ -1,4 +1,4 @@
-// src/lib/watchlistStore.ts
+
 import type { Movie, TVShow } from '../types/movies';
 
 export interface WatchlistItem {
@@ -41,17 +41,13 @@ class WatchlistStore {
 
   constructor() {
     this.watchlist = this.loadFromStorage();
-    console.log('[WatchlistStore] Initialized with', this.watchlist.length, 'items');
-
     if (typeof window !== 'undefined') {
       setTimeout(() => {
-        console.log('[WatchlistStore] Async initial notification');
         this.notifyListeners();
       }, 50);
 
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
-          console.log('[WatchlistStore] DOM ready notification');
           this.notifyListeners();
         });
       }
@@ -66,19 +62,15 @@ class WatchlistStore {
     try {
       const stored = localStorage.getItem('movieDashWatchlist');
       if (!stored) {
-        console.log('[WatchlistStore] No stored data found');
         return [];
       }
 
       const parsed = JSON.parse(stored);
       if (!Array.isArray(parsed)) {
-        console.warn('[WatchlistStore] Ignoring malformed stored data');
         return [];
       }
 
-      const normalized = parsed
-        .map(item => this.normalizeStoredItem(item))
-        .filter((item): item is WatchlistItem => Boolean(item));
+      const normalized = parsed.map(item => this.normalizeStoredItem(item)).filter((item): item is WatchlistItem => Boolean(item));
 
       const deduped = this.dedupeAndSort(normalized);
       const normalizedJson = JSON.stringify(deduped);
@@ -86,11 +78,9 @@ class WatchlistStore {
       if (normalizedJson !== stored) {
         localStorage.setItem('movieDashWatchlist', normalizedJson);
       }
-
-      console.log('[WatchlistStore] Loaded', deduped.length, 'items from storage');
       return deduped;
     } catch (error) {
-      console.error('[WatchlistStore] Error loading from storage:', error);
+      alert('[WatchlistStore] Error loading from storage:' + error);
       return [];
     }
   }
@@ -102,9 +92,8 @@ class WatchlistStore {
 
     try {
       localStorage.setItem('movieDashWatchlist', JSON.stringify(this.watchlist));
-      console.log('[WatchlistStore] Persisted', this.watchlist.length, 'items');
     } catch (error) {
-      console.error('[WatchlistStore] Error saving to storage:', error);
+      alert('[WatchlistStore] Error saving to storage:' + error);
     }
   }
 
@@ -324,15 +313,12 @@ class WatchlistStore {
 
     const exists = this.watchlist.find(existing => existing.id === watchlistItem.id && existing.type === watchlistItem.type);
     if (exists) {
-      console.log('[WatchlistStore] Item already in watchlist:', title);
       return false;
     }
 
     this.watchlist = [watchlistItem, ...this.watchlist];
     this.saveToStorage();
     this.notifyListeners();
-
-    console.log('[WatchlistStore] Added to watchlist:', title);
     return true;
   }
 
@@ -344,10 +330,8 @@ class WatchlistStore {
     if (this.watchlist.length < initialLength) {
       this.saveToStorage();
       this.notifyListeners();
-      console.log('[WatchlistStore] Removed item', id, normalizedType);
       return true;
     }
-
     return false;
   }
 
@@ -363,7 +347,6 @@ class WatchlistStore {
 
     this.saveToStorage();
     this.notifyListeners();
-    console.log('[WatchlistStore] Toggled watched status:', item.title, '->', item.isWatched);
     return true;
   }
 
@@ -432,15 +415,13 @@ class WatchlistStore {
 
   private notifyListeners(): void {
     const stats = this.getStats();
-    console.log('[WatchlistStore] Notifying', this.listeners.size, 'listeners with', this.watchlist.length, 'items');
-
     this.listeners.forEach(callback => {
       try {
         setTimeout(() => {
           callback([...this.watchlist], { ...stats });
         }, 0);
       } catch (error) {
-        console.error('[WatchlistStore] Listener error:', error);
+        alert('[WatchlistStore] Listener error:' + error);
       }
     });
 
@@ -456,25 +437,11 @@ class WatchlistStore {
     this.watchlist = [];
     this.saveToStorage();
     this.notifyListeners();
-    console.log('[WatchlistStore] Watchlist cleared');
   }
 
-  debug(): void {
-    console.log('[WatchlistStore] Debug snapshot:', {
-      items: this.watchlist.length,
-      listeners: this.listeners.size,
-      watchlist: this.watchlist.map(item => ({
-        id: item.id,
-        title: item.title,
-        type: item.type,
-        watched: item.isWatched,
-      })),
-      stats: this.getStats(),
-    });
-  }
+ 
 
   forceUpdate(): void {
-    console.log('[WatchlistStore] Forcing listeners update');
     this.notifyListeners();
   }
 }
@@ -529,7 +496,6 @@ export const WatchlistEvents = {
       if (!item) {
         return;
       }
-      console.log('[WatchlistEvents] Received legacy add event');
       watchlistStore.addToWatchlist(item, type);
     }) as EventListener);
 
@@ -538,7 +504,6 @@ export const WatchlistEvents = {
       if (!item) {
         return;
       }
-      console.log('[WatchlistEvents] Received add event');
       watchlistStore.addToWatchlist(item, type);
     }) as EventListener);
 
@@ -547,7 +512,6 @@ export const WatchlistEvents = {
       if (typeof id !== 'number') {
         return;
       }
-      console.log('[WatchlistEvents] Received remove event');
       watchlistStore.removeFromWatchlist(id, type);
     }) as EventListener);
 
@@ -556,22 +520,18 @@ export const WatchlistEvents = {
       if (typeof id !== 'number') {
         return;
       }
-      console.log('[WatchlistEvents] Received toggle event');
       watchlistStore.toggleWatched(id, type);
     }) as EventListener);
 
-    console.log('[WatchlistEvents] Global listeners ready');
   }
 };
 
 if (typeof window !== 'undefined') {
-  console.log('[WatchlistStore] Setting up watchlist system');
 
   WatchlistEvents.setupGlobalListeners();
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-      console.log('[WatchlistStore] DOM loaded - re-arming listeners');
       WatchlistEvents.setupGlobalListeners();
     });
   }
@@ -579,5 +539,4 @@ if (typeof window !== 'undefined') {
   (window as unknown as Record<string, unknown>).watchlistStore = watchlistStore;
   (window as unknown as Record<string, unknown>).WatchlistEvents = WatchlistEvents;
 
-  console.log('[WatchlistStore] Ready with', watchlistStore.getWatchlist().length, 'items');
 }

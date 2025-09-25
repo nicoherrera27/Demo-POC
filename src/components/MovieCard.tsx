@@ -6,6 +6,7 @@ interface Props {
   item: Movie | TVShow;
   type: 'movie' | 'tv';
 }
+const { watchlistStore } = await import('../lib/watchlistStore')
 
 export default function MovieCard({ item, type }: Props) {
   const [isInWatchlist, setIsInWatchlist] = useState(false);
@@ -14,43 +15,35 @@ export default function MovieCard({ item, type }: Props) {
   const title = type === 'movie' ? (item as Movie).title : (item as TVShow).name;
   const releaseDate = type === 'movie' ? (item as Movie).release_date : (item as TVShow).first_air_date;
 
-  // Verificar estado inicial - ejecutar inmediatamente
   useEffect(() => {
     const checkWatchlistStatus = async () => {
       try {
-        const { watchlistStore } = await import('../lib/watchlistStore');
         const inWatchlist = watchlistStore.isInWatchlist(item.id, type);
         setIsInWatchlist(inWatchlist);
-        console.log('MovieCard: Initial status for', title, ':', inWatchlist);
       } catch (error) {
-        console.error('Error checking initial status:', error);
+        alert('Error checking initial status:'+ error);
       }
     };
 
-    // Verificar inmediatamente
     checkWatchlistStatus();
     
-    // También verificar después de un pequeño delay para asegurar que el store esté listo
     const timeoutId = setTimeout(checkWatchlistStatus, 100);
     
     return () => clearTimeout(timeoutId);
   }, [item.id, type, title]);
 
-  // Escuchar cambios en el store
   useEffect(() => {
     let unsubscribe: (() => void) | null = null;
 
     const setupListener = async () => {
       try {
-        const { watchlistStore } = await import('../lib/watchlistStore');
         
         unsubscribe = watchlistStore.subscribe(() => {
           const inWatchlist = watchlistStore.isInWatchlist(item.id, type);
           setIsInWatchlist(inWatchlist);
-          console.log('MovieCard: Status updated for', title, ':', inWatchlist);
         });
       } catch (error) {
-        console.error('Error setting up listener:', error);
+        alert('Error setting up listener:' + error);
       }
     };
 
@@ -64,28 +57,14 @@ export default function MovieCard({ item, type }: Props) {
   const handleWatchlistAction = async () => {
     try {
       setIsLoading(true);
-      const { watchlistStore } = await import('../lib/watchlistStore');
       
       if (isInWatchlist) {
-        // Remover de watchlist
-        console.log('MovieCard: Removing from watchlist:', title, type);
-        const success = watchlistStore.removeFromWatchlist(item.id, type);
-        if (success) {
-          console.log('MovieCard: Successfully removed:', title);
-        }
+        watchlistStore.removeFromWatchlist(item.id, type);
       } else {
-        // Agregar a watchlist
-        console.log('MovieCard: Adding to watchlist:', title, type);
-        const success = watchlistStore.addToWatchlist(item, type);
-        if (success) {
-          console.log('MovieCard: Successfully added:', title);
-        } else {
-          console.log('MovieCard: Item already in watchlist:', title);
-        }
-      }
-      
+        watchlistStore.addToWatchlist(item, type);
+      }  
     } catch (error) {
-      console.error('MovieCard: Error with watchlist action:', error);
+      alert('Error al actualizar la watchlist: ' + error);
     } finally {
       setIsLoading(false);
     }
@@ -120,7 +99,6 @@ export default function MovieCard({ item, type }: Props) {
           </span>
         </div>
 
-        {/* Botón para agregar/remover watchlist */}
         <button
           onClick={handleWatchlistAction}
           disabled={isLoading}
