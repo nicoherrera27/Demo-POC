@@ -34,7 +34,7 @@
               : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
           ]"
         >
-          🎬
+          Pelicula
         </button>
         <button
           @click="() => { searchType = 'tv'; handleSearch(); }"
@@ -45,7 +45,7 @@
               : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
           ]"
         >
-          📺
+          Serie
         </button>
       </div>
     </div>
@@ -86,7 +86,7 @@
               v-else 
               class="w-10 h-14 bg-gray-600 rounded flex items-center justify-center border border-gray-600"
             >
-              <span class="text-lg">{{ searchType === 'movie' ? '🎬' : '📺' }}</span>
+              <span class="text-lg">{{ searchType === 'movie' ? 'Pelicula' : 'Serie' }}</span>
             </div>
           </div>
           
@@ -98,7 +98,7 @@
             <div class="flex items-center gap-2 text-xs text-gray-400 mb-1">
               <span>{{ getReleaseYear(item) }}</span>
               <span>⭐{{ item.vote_average.toFixed(1) }}</span>
-              <span>{{ searchType === 'movie' ? '🎬' : '📺' }}</span>
+              <span>{{ searchType === 'movie' ? 'Pelicula' : 'Serie' }}</span>
             </div>
             <p v-if="item.overview" class="text-gray-300 text-xs line-clamp-1">
               {{ item.overview }}
@@ -149,7 +149,7 @@
           href="/watchlist" 
           class="flex items-center justify-between bg-primary-600 hover:bg-primary-700 text-white px-3 py-2 rounded text-sm transition-colors"
         >
-          <span>Ver mi Watchlist ({{ watchlistItemsCount }} elementos)</span>
+          <span>Ver mi lista ({{ watchlistItemsCount }} elementos)</span>
           <span>→</span>
         </a>
       </div>

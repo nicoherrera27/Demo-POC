@@ -54,26 +54,6 @@
     }
 
     // Aplicar ordenamiento
-    switch (sortBy) {
-      case 'rating':
-        items.sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0));
-        break;
-      case 'title':
-        items.sort((a, b) => a.title.localeCompare(b.title));
-        break;
-      case 'priority':
-        const priorityOrder = { high: 3, medium: 2, low: 1 };
-        items.sort((a, b) => {
-          const priorityDiff = priorityOrder[b.priority] - priorityOrder[a.priority];
-          if (priorityDiff !== 0) return priorityDiff;
-          return new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime();
-        });
-        break;
-      default:
-        items.sort((a, b) => new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime());
-        break;
-    }
-
     console.log('Svelte: Filtered result:', {
       filteredCount: items.length,
       filter: filter,
@@ -211,7 +191,7 @@
 <div class="bg-gradient-to-br from-green-900 via-teal-900 to-blue-900 p-6 rounded-lg shadow-lg">
   <div class="flex items-center justify-between mb-6">
     <h2 class="text-2xl font-bold text-green-300">
-      Mi Watchlist (Svelte Component)
+      Mi Lista (Svelte Component)
     </h2>
     
     <div class="flex gap-2">
@@ -225,17 +205,6 @@
         <option value="watched">Vistas ({stats.watched})</option>
         <option value="movie">Películas ({stats.movies})</option>
         <option value="tv">Series ({stats.tvShows})</option>
-      </select>
-      
-      <select 
-        bind:value={sortBy}
-        on:change={() => console.log('Svelte: Sort changed to:', sortBy)}
-        class="bg-gray-700 text-white px-3 py-1 rounded text-sm border border-gray-600"
-      >
-        <option value="dateAdded">Fecha agregada</option>
-        <option value="priority">Prioridad</option>
-        <option value="rating">Rating</option>
-        <option value="title">Título</option>
       </select>
     </div>
   </div>
@@ -272,7 +241,7 @@
   {#if isInitialized && filteredItems.length > 0}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {#each filteredItems as item (item.id + '-' + item.type)}
-        <div class="bg-black bg-opacity-40 rounded-lg p-4 border-l-4 {item.isWatched ? 'border-green-500' : 'border-yellow-500'} transition-all hover:bg-opacity-60 border border-gray-700 hover:border-gray-500">
+        <div class="bg-black bg-opacity-40 rounded-lg p-4 transition-all hover:bg-opacity-60">
           <div class="flex gap-3">
             <div class="flex-shrink-0">
               {#if item.poster_path}
@@ -312,15 +281,6 @@
                 </p>
               {/if}
               
-              <div class="mb-3">
-                <textarea 
-                  placeholder="Agregar notas..." 
-                  class="w-full bg-gray-700 text-white text-xs rounded px-2 py-1 border border-gray-600 resize-none h-12 focus:border-green-500 focus:outline-none"
-                  value={item.notes || ''}
-                  on:blur={(e) => updateNotes(item.id, item.type, e.target.value)}
-                />
-              </div>
-              
               <div class="flex items-center justify-between mb-2">
                 <div class="text-xs text-gray-500">
                   Agregado: {new Date(item.dateAdded).toLocaleDateString()}
@@ -333,7 +293,7 @@
               <div class="flex gap-2">
                 <button
                   on:click={() => toggleWatched(item.id, item.type)}
-                  class="px-2 py-1 rounded text-xs transition-all {item.isWatched ? 'bg-green-600 hover:bg-green-700' : 'bg-yellow-600 hover:bg-yellow-700'} text-white hover:scale-105"
+                  class="px-2 py-1 rounded text-xs transition-all {item.isWatched ? 'bg-green-600 hover:bg-green-700' : 'bg-yellow-600 hover:bg-red-700'} text-white hover:scale-105"
                 >
                   {item.isWatched ? '✓ Vista' : 'Marcar vista'}
                 </button>
@@ -352,14 +312,11 @@
     </div>
   {:else}
     <div class="text-center py-12 bg-gray-800 bg-opacity-50 rounded-lg border border-gray-700">
-      <div class="text-4xl mb-4">
-        {#if !isInitialized}{:else if stats.total === 0}{:else}{/if}
-      </div>
       <div class="text-gray-400 text-lg mb-4">
         {#if !isInitialized}
           Inicializando componente...
         {:else if stats.total === 0}
-          Tu watchlist está vacía
+          Tu lista esta vacia
         {:else}
           No hay elementos para el filtro seleccionado
         {/if}
@@ -381,9 +338,6 @@
     <div class="flex justify-between items-center text-sm">
       <div class="text-gray-300">
         {stats.movies} películas | {stats.tvShows} series | {stats.watched}/{stats.total} vistas
-      </div>
-      <div class="text-green-300 font-medium">
-        Svelte Component
       </div>
     </div>
   </div>

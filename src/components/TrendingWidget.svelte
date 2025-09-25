@@ -23,12 +23,6 @@ import type { Movie, TVShow } from '../types/movies.ts';
     } finally {
       loading = false;
     }
-
-    // Auto-slide carousel
-    setInterval(() => {
-      const maxSlides = activeTab === 'movies' ? trendingMovies.length : trendingTVShows.length;
-      currentSlide = (currentSlide + 1) % Math.max(1, maxSlides - 2);
-    },9999999);
   });
 
   function getTitle(item: Movie | TVShow): string {
@@ -50,7 +44,7 @@ import type { Movie, TVShow } from '../types/movies.ts';
         class="px-4 py-2 rounded-lg font-medium transition-all {activeTab === 'movies' ? 'bg-white text-purple-900' : 'bg-purple-700 text-white hover:bg-purple-600'}"
         on:click={() => { activeTab = 'movies'; currentSlide = 0; }}
       >
-        Películas
+        Peliculas
       </button>
       <button
         class="px-4 py-2 rounded-lg font-medium transition-all {activeTab === 'tv' ? 'bg-white text-purple-900' : 'bg-purple-700 text-white hover:bg-purple-600'}"

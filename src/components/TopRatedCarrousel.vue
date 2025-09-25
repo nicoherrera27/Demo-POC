@@ -153,7 +153,7 @@
                     Eliminar
                   </span>
                   <span v-else>
-                    ➕ Watchlist
+                    ➕ Mi Lista
                   </span>
                 </button>
               </div>
@@ -180,9 +180,6 @@
         <div class="flex justify-between items-center text-sm">
           <div class="text-gray-300">
             Mostrando contenido mejor valorado ({{ getCurrentItems().length }} elementos)
-          </div>
-          <div class="text-purple-400 font-medium">
-            {{ activeTab === 'movies' ? 'Películas' : 'Series' }} • Vue.js Component
           </div>
         </div>
       </div>
@@ -216,7 +213,6 @@ const error = ref('');
 const watchlistItems = ref<Set<WatchlistKey>>(new Set());
 const watchlistLoading = ref<Record<WatchlistKey, boolean>>({});
 
-let autoScrollInterval: ReturnType<typeof setInterval> | null = null;
 let storeUnsubscribe: (() => void) | null = null;
 
 const isDev = computed(() => {
@@ -332,24 +328,6 @@ onMounted(async () => {
     });
   } catch (error) {
     // Error handling
-  }
-  
-  autoScrollInterval = setInterval(() => {
-    if (!loading.value && getCurrentItems().length > 0) {
-      nextSlide();
-    }
-  }, 5000);
-});
-
-onUnmounted(() => {
-  if (autoScrollInterval) {
-    clearInterval(autoScrollInterval);
-    autoScrollInterval = null;
-  }
-  
-  if (storeUnsubscribe) {
-    storeUnsubscribe();
-    storeUnsubscribe = null;
   }
 });
 </script>

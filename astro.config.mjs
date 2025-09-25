@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import preact from '@astrojs/preact';
 import svelte from '@astrojs/svelte';
 import vue from '@astrojs/vue';
+import react from '@astrojs/react';
 import tailwind from '@astrojs/tailwind';
 import { visualizer } from "rollup-plugin-visualizer";
 

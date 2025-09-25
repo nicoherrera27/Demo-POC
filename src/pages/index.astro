@@ -1,14 +1,12 @@
 ---
-// src/pages/index.astro
 import Layout from '../layouts/Layout.astro';
-import MovieCard from '../components/MovieCard.tsx';
+import PopularContent from '../components/PopularContent.jsx';
 import TrendingWidget from '../components/TrendingWidget.svelte';
 import StatsWidget from '../components/StatsWidget.tsx';
 import TopRatedCarrousel from '../components/TopRatedCarrousel.vue';
 import FrameworksDesc from '../components/FrameworksDesc.astro';
 import { tmdbApi } from '../lib/tmdb';
 
-// Fetch data at build time (SSG)
 const [popularMoviesResponse, popularTVResponse] = await Promise.all([
   tmdbApi.getPopularMovies(),
   tmdbApi.getPopularTVShows(),
@@ -18,108 +16,56 @@ const popularMovies = popularMoviesResponse.results.slice(0, 6);
 const popularTVShows = popularTVResponse.results.slice(0, 6);
 ---
 
-<Layout title="MovieDash - Dashboard de Películas y Series">
-  <!-- Hero Section -->
-  <section
+<Layout title="Woobly Seat - Películas y Series">
+  <div
     class="bg-gradient-to-r from-primary-900 via-purple-900 to-blue-900 rounded-lg p-8 mb-8 text-center"
   >
     <h1 class="text-4xl md:text-6xl font-bold text-white mb-4">
       Wobbly Seat 😵💺
     </h1>
     <p class="text-xl text-gray-200 mb-6">
-      Usa la barra de búsqueda arriba para descubrir nuevas películas y series
+      Usa la barra de busqueda arriba para descubrir nuevas peliculas y series
     </p>
-  </section>
+  </div>
 
-  <!-- Componente de estadísticas - Ancho completo -->
-  <section class="mb-8">
+  <div class="mb-8">
     <StatsWidget client:load />
-  </section>
+  </div>
 
-  <!-- Svelte Component - Trending Carousel -->
   <div class="mb-8">
     <TrendingWidget client:load />
   </div>
 
-  <!-- Vue Component - Top Rated Carousel -->
   <div class="mb-8" id="top-rated">
     <TopRatedCarrousel client:load />
   </div>
 
-  <!-- Static Content with React Components -->
-  <section class="mb-8">
-    <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
-      <h2 class="text-2xl font-bold mb-6 text-primary-400">
-        🔥 Películas Populares (React Components)
-      </h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {
-          popularMovies.map((movie) => (
-            <MovieCard item={movie} type="movie" client:visible />
-          ))
-        }
-      </div>
-    </div>
-  </section>
+  <div class="mb-8">
+    <PopularContent 
+      popularMovies={popularMovies} 
+      popularTVShows={popularTVShows} 
+      client:visible 
+    />
+  </div>
 
-  <section class="mb-8">
-    <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
-      <h2 class="text-2xl font-bold mb-6 text-primary-400">
-        🔥 Series Populares (React Components)
-      </h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {
-          popularTVShows.map((show) => (
-            <MovieCard item={show} type="tv" client:visible />
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  <!-- Call to Action para Watchlist -->
-  <section class="mb-8">
-    <div
-      class="bg-gradient-to-r from-green-800 to-teal-800 p-6 rounded-lg shadow-lg text-center"
-    >
-      <h2 class="text-2xl font-bold mb-4 text-white">
-        ¿Agregaste algo a tu Watchlist?
-      </h2>
-      <p class="text-green-200 mb-6">
-        Organiza tus películas y series pendientes con prioridades y notas
-      </p>
-      <a
-        href="/watchlist"
-        class="bg-white text-green-800 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-flex items-center gap-2"
-      >
-        Ver Mi Watchlist
-      </a>
-    </div>
-  </section>
-
-  <!-- Framework Comparison Section -->
   <section class="mb-8">
     <FrameworksDesc />
   </section>
 </Layout>
 
 <script>
-  // Declare global window property
   declare global {
     interface Window {
       watchlistStore: any;
     }
   }
 
-  // Cargar el store de watchlist
   import('../lib/watchlistStore')
     .then(({ watchlistStore, WatchlistEvents }) => {
-      console.log('Homepage: Store loaded');
       WatchlistEvents.setupGlobalListeners();
       window.watchlistStore = watchlistStore;
-      console.log('Homepage ready');
     })
     .catch((error) => {
-      console.error('Error loading watchlist store:', error);
+      alert('Error loading watchlist store:' + error);
     });
 </script>
