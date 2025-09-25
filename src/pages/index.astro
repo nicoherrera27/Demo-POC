@@ -31,47 +31,10 @@ const popularTVShows = popularTVResponse.results.slice(0, 6);
     </p>
   </section>
 
-  <!-- Framework Demonstrations Grid -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-    <!-- Mensaje sobre la búsqueda -->
-    <div
-      class="bg-gradient-to-br from-blue-900 to-purple-900 p-6 rounded-lg shadow-lg"
-    >
-      <h2 class="text-2xl font-bold mb-4 text-blue-300">🔍 Búsqueda Rápida</h2>
-      <div class="space-y-4">
-        <p class="text-gray-200">
-          La barra de búsqueda en el header te permite encontrar rápidamente
-          películas y series.
-        </p>
-        <div class="bg-black bg-opacity-30 p-4 rounded-lg">
-          <h3 class="text-lg font-semibold text-blue-400 mb-2">Funciones:</h3>
-          <ul class="text-sm text-gray-300 space-y-1">
-            <li>
-              • <strong>Búsqueda instantánea</strong> con resultados en tiempo real
-            </li>
-            <li>
-              • <strong>Filtros por tipo</strong>: películas 🎬 o series 📺
-            </li>
-            <li>
-              • <strong>Agregar a watchlist</strong> directamente desde los resultados
-            </li>
-            <li>• <strong>Vista previa</strong> con ratings y años</li>
-          </ul>
-        </div>
-        <div class="text-center">
-          <div
-            class="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg"
-          >
-            <span>Prueba buscar "Marvel" o "Game of Thrones"</span>
-            <span>↗</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Componente de estadísticas -->
+  <!-- Componente de estadísticas - Ancho completo -->
+  <section class="mb-8">
     <StatsWidget client:load />
-  </div>
+  </section>
 
   <!-- Svelte Component - Trending Carousel -->
   <div class="mb-8">

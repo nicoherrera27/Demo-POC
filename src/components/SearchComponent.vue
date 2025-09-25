@@ -2,7 +2,7 @@
   <div class="relative">
     <!-- Barra de búsqueda -->
     <div class="flex items-center gap-2">
-      <!-- Input de búsqueda -->
+      <!-- Input de búsqueda más largo -->
       <div class="relative">
         <input
           ref="searchInput"
@@ -12,7 +12,7 @@
           @blur="handleBlur"
           type="text"
           placeholder="Buscar películas o series..."
-          class="w-80 px-4 py-2 bg-gray-700 text-white rounded-lg border border-gray-600 focus:outline-none focus:border-primary-500 text-sm pr-10"
+          class="w-96 px-4 py-2 bg-gray-700 text-white rounded-lg border border-gray-600 focus:outline-none focus:border-primary-500 text-sm pr-10"
         />
         
         <!-- Ícono de búsqueda -->
@@ -55,6 +55,8 @@
       v-if="showResults && (searchResults.length > 0 || searchQuery.trim().length > 0)"
       class="absolute top-full left-0 right-0 mt-1 bg-gray-800 border border-gray-600 rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto"
       style="width: 100%;"
+      @mouseenter="preventBlur = true"
+      @mouseleave="preventBlur = false"
     >
       <!-- Loading state -->
       <div v-if="loading" class="p-4 text-center">
@@ -70,8 +72,7 @@
         <div
           v-for="item in searchResults.slice(0, 8)"
           :key="item.id"
-          class="flex items-center gap-3 px-3 py-2 hover:bg-gray-700 transition-colors cursor-pointer border-b border-gray-700 last:border-b-0"
-          @mousedown="handleWatchlistAction(item, searchType)"
+          class="flex items-center gap-3 px-3 py-2 hover:bg-gray-700 transition-colors border-b border-gray-700 last:border-b-0"
         >
           <!-- Poster -->
           <div class="flex-shrink-0">
@@ -114,7 +115,7 @@
                 'opacity-50 cursor-not-allowed': watchlistLoading[getItemKey(item.id, searchType)]
               }"
               class="px-2 py-1 text-white rounded text-xs transition-colors font-medium"
-              @click.stop="handleWatchlistAction(item, searchType)"
+              @mousedown.prevent="handleWatchlistAction(item, searchType)"
             >
               <span v-if="watchlistLoading[getItemKey(item.id, searchType)]">
                 ⏳
@@ -147,7 +148,6 @@
         <a 
           href="/watchlist" 
           class="flex items-center justify-between bg-primary-600 hover:bg-primary-700 text-white px-3 py-2 rounded text-sm transition-colors"
-          @mousedown.stop
         >
           <span>Ver mi Watchlist ({{ watchlistItemsCount }} elementos)</span>
           <span>→</span>
@@ -173,6 +173,7 @@ const searchResults = ref<(Movie | TVShow)[]>([])
 const loading = ref(false)
 const showResults = ref(false)
 const searchInput = ref<HTMLInputElement>()
+const preventBlur = ref(false) // Nueva variable para evitar que se oculten los resultados
 
 // Variables reactivas para watchlist
 const watchlistItems = ref<Set<WatchlistKey>>(new Set())
@@ -204,12 +205,14 @@ const isInWatchlist = (id: number, type: SearchType): boolean => {
   return watchlistItems.value.has(getItemKey(id, type))
 }
 
-// Función para manejar blur con delay para permitir clicks
+// Función mejorada para manejar blur - evita que se oculten los resultados al hacer click
 const handleBlur = () => {
-  // Delay para permitir que los clicks en los resultados se ejecuten
+  // Solo ocultar si no estamos sobre el dropdown y no hay prevent blur activo
   setTimeout(() => {
-    showResults.value = false
-  }, 200)
+    if (!preventBlur.value) {
+      showResults.value = false
+    }
+  }, 150)
 }
 
 // Función para actualizar el estado de watchlist desde el store
@@ -231,7 +234,7 @@ const updateWatchlistState = async (): Promise<void> => {
   }
 }
 
-// Función para manejar acciones de watchlist
+// Función mejorada para manejar acciones de watchlist - no oculta los resultados
 const handleWatchlistAction = async (item: Movie | TVShow, type: SearchType): Promise<void> => {
   const itemKey = getItemKey(item.id, type)
   
@@ -266,7 +269,13 @@ const handleWatchlistAction = async (item: Movie | TVShow, type: SearchType): Pr
       }
     }
     
-    // El estado se actualizará automáticamente via suscripción al store
+    // Mantener los resultados visibles después de la acción
+    showResults.value = true
+    
+    // Hacer focus de nuevo al input para mantener la experiencia fluida
+    if (searchInput.value) {
+      searchInput.value.focus()
+    }
     
   } catch (error) {
     console.error('Vue SearchBar: Error with watchlist action:', error)
@@ -331,7 +340,7 @@ onMounted(async () => {
     console.error('Vue SearchBar: Error subscribing to store:', error)
   }
   
-  // Click fuera para cerrar
+  // Click fuera para cerrar - mejorado
   document.addEventListener('click', (event) => {
     const target = event.target as HTMLElement
     const searchContainer = searchInput.value?.closest('.relative')
