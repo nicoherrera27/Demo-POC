@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'preact/hooks';
 import { tmdbApi } from '../lib/tmdb.js';
-import type { Movie, TVShow } from '../types/movies.ts';
-
 interface Stats {
   totalMovies: number;
   totalTVShows: number;
@@ -39,12 +37,11 @@ export default function StatsWidget() {
           topGenres: ['Accion', 'Drama', 'Comedia', 'Sci-Fi', 'Romance']
         });
       } catch (error) {
-        console.error('Error fetching stats:', error);
+        alert('Error fetching stats:' + error);
       } finally {
         setLoading(false);
       }
     };
-
     fetchStats();
   }, []);
 
@@ -107,15 +104,7 @@ export default function StatsWidget() {
 
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {metrics.map((metric) => (
-          <button
-            key={metric.id}
-            onClick={() => setActiveMetric(metric.id)}
-            class={`p-4 rounded-lg transition-all border-2 text-left ${
-              activeMetric === metric.id
-                ? 'border-primary-500 bg-primary-900 bg-opacity-50'
-                : 'border-gray-600 bg-gray-700 hover:bg-gray-600'
-            }`}
-          >
+          <button key={metric.id} onClick={() => setActiveMetric(metric.id)} class={`p-4 rounded-lg transition-all border-2 text-left ${activeMetric === metric.id ? 'border-primary-500 bg-primary-900 bg-opacity-50' : 'border-gray-600 bg-gray-700 hover:bg-gray-600'}`}>
             <div class={`text-2xl font-bold ${metric.color}`}>
               {metric.value}
             </div>
@@ -129,7 +118,6 @@ export default function StatsWidget() {
         ))}
       </div>
 
-      {/* Detailed view based on active metric */}
       <div class="bg-gray-700 p-4 rounded-lg">
         {activeMetric === 'movies' && (
           <div>
@@ -204,9 +192,13 @@ export default function StatsWidget() {
             <h3 class="text-lg font-semibold text-purple-400 mb-3">Generos Populares</h3>
             <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
               {stats.topGenres.map((genre, index) => (
+<<<<<<< HEAD
                 <div 
                   key={genre}
                 >
+=======
+                <div key={genre} class="bg-gray-600 px-3 py-2 rounded-lg text-sm text-center hover:bg-gray-500 transition-colors">
+>>>>>>> 8b16afdfdd9ea25b07c9c2b78d4aa13e6661dffb
                   <span class="font-medium">#{index + 1}</span> {genre}
                 </div>
               ))}

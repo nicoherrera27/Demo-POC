@@ -1,12 +1,13 @@
 ---
-// src/pages/watchlist.astro
 import Layout from '../layouts/Layout.astro';
 import WatchlistSvelte from '../components/WatchlistSvelte.svelte';
 ---
 
+
 <Layout title="Mi Lista - Woobly Seat">
   <!-- Hero Section -->
   <section
+=======
     class="bg-gradient-to-r from-green-900 via-teal-900 to-blue-900 rounded-lg p-8 mb-8 text-center"
   >
     <h1 class="text-4xl md:text-6xl font-bold text-white mb-4">
@@ -15,12 +16,10 @@ import WatchlistSvelte from '../components/WatchlistSvelte.svelte';
     <p class="text-xl text-gray-200 mb-6">
       Gestiona tus peliculas y series pendientes de ver
     </p>
-  </section>
+  </div>
 
-  <!-- Watchlist Component -->
   <WatchlistSvelte client:load />
 
-  <!-- Quick Actions Section -->
   <section class="mt-8 bg-gray-800 p-6 rounded-lg shadow-lg">
     <h2 class="text-2xl font-bold mb-6 text-primary-400">
      Acciones Rapidas
@@ -71,7 +70,6 @@ import WatchlistSvelte from '../components/WatchlistSvelte.svelte';
     </div>
   </section>
 
-  <!-- Tips Section -->
   <section
     class="mt-8 bg-gradient-to-r from-gray-800 to-gray-900 p-6 rounded-lg shadow-lg"
   >
@@ -94,30 +92,17 @@ import WatchlistSvelte from '../components/WatchlistSvelte.svelte';
 </Layout>
 
 <script>
-  // Cargar el store de watchlist para esta página
   import('../lib/watchlistStore')
     .then(({ watchlistStore, WatchlistEvents }) => {
-      console.log('Watchlist page: Store loaded');
-
-      // Configurar eventos globales
       WatchlistEvents.setupGlobalListeners();
-
-      // Hacer disponible globalmente para debugging
       window.watchlistStore = watchlistStore;
-
-      console.log(
-        'Watchlist page ready with',
-        watchlistStore.getWatchlist().length,
-        'items'
-      );
     })
     .catch((error) => {
-      console.error('Error loading watchlist store:', error);
+      alert('Error loading watchlist store:' + error);
     });
 </script>
 
 <style>
-  /* Animaciones suaves */
   section {
     animation: fadeInUp 0.6s ease-out;
   }

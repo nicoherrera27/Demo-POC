@@ -6,26 +6,10 @@
       </h2>
       
       <div class="flex gap-2">
-        <button
-          @click="switchTab('movies')"
-          :class="[
-            'px-4 py-2 rounded-lg font-medium transition-all',
-            activeTab === 'movies' 
-              ? 'bg-purple-600 text-white shadow-lg' 
-              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-          ]"
-        >
+        <button @click="switchTab('movies')" :class="['px-4 py-2 rounded-lg font-medium transition-all', activeTab === 'movies' ? 'bg-purple-600 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']">
           Películas ({{ topMovies.length }})
         </button>
-        <button
-          @click="switchTab('tv')"
-          :class="[
-            'px-4 py-2 rounded-lg font-medium transition-all',
-            activeTab === 'tv' 
-              ? 'bg-purple-600 text-white shadow-lg' 
-              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-          ]"
-        >
+        <button @click="switchTab('series')" :class="['px-4 py-2 rounded-lg font-medium transition-all', activeTab === 'series' ? 'bg-purple-600 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']">
           Series ({{ topTVShows.length }})
         </button>
       </div>
@@ -44,54 +28,29 @@
       <div class="text-red-400 text-lg mb-4">
         {{ error }}
       </div>
-      <button 
-        @click="fetchData"
-        class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors"
-      >
+      <button @click="fetchData" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors">
         Reintentar
       </button>
     </div>
 
     <div v-else-if="getCurrentItems().length > 0" class="relative">
       <template v-if="getCurrentItems().length > 4">
-        <button
-          @click="prevSlide"
-          class="absolute left-0 top-1/2 transform -translate-y-1/2 z-20 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-3 rounded-full transition-all"
-        >
+        <button @click="prevSlide" class="absolute left-0 top-1/2 transform -translate-y-1/2 z-20 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-3 rounded-full transition-all">
           ◀
         </button>
         
-        <button
-          @click="nextSlide"
-          class="absolute right-0 top-1/2 transform -translate-y-1/2 z-20 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-3 rounded-full transition-all"
-        >
+        <button @click="nextSlide" class="absolute right-0 top-1/2 transform -translate-y-1/2 z-20 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-3 rounded-full transition-all">
           ▶
         </button>
       </template>
 
       <div class="overflow-hidden rounded-lg">
-        <div 
-          class="flex transition-transform duration-500 ease-in-out"
-          :style="`transform: translateX(-${currentIndex * 25}%)`"
-        >
-          <div
-            v-for="(item, index) in getCurrentItems()"
-            :key="item.id"
-            class="flex-shrink-0 w-1/4 p-2"
-          >
+        <div class="flex transition-transform duration-500 ease-in-out" :style="`transform: translateX(-${currentIndex * 25}%)`">
+          <div v-for="(item, index) in getCurrentItems()" :key="item.id" class="flex-shrink-0 w-1/4 p-2">
             <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
               <div class="relative group">
-                <img
-                  v-if="item.poster_path"
-                  :src="`https://image.tmdb.org/t/p/w500${item.poster_path}`"
-                  :alt="getTitle(item)"
-                  class="w-full h-56 object-cover"
-                  loading="lazy"
-                />
-                <div
-                  v-else
-                  class="w-full h-56 bg-gray-600 flex items-center justify-center"
-                >
+                <img v-if="item.poster_path" :src="`https://image.tmdb.org/t/p/w500${item.poster_path}`" :alt="getTitle(item)" class="w-full h-56 object-cover" loading="lazy"/>
+                <div v-else class="w-full h-56 bg-gray-600 flex items-center justify-center">
                   <div class="text-center">
                     <div class="text-gray-400 text-2xl mb-2">🎬</div>
                     <span class="text-gray-400 text-sm">Sin imagen</span>
@@ -136,16 +95,7 @@
                   </span>
                 </div>
 
-                <button
-                  @click="handleWatchlistAction(item, activeTab)"
-                  :disabled="watchlistLoading[getItemKey(item.id, activeTab)]"
-                  :class="{
-                    'bg-red-600 hover:bg-red-700': isInWatchlist(item.id, activeTab),
-                    'bg-purple-600 hover:bg-purple-700': !isInWatchlist(item.id, activeTab),
-                    'opacity-50 cursor-not-allowed': watchlistLoading[getItemKey(item.id, activeTab)]
-                  }"
-                  class="w-full text-white px-2 py-1 rounded text-xs transition-colors"
-                >
+                <button @click="handleWatchlistAction(item, activeTab)" :disabled="watchlistLoading[getItemKey(item.id, activeTab)]" :class="{'bg-red-600 hover:bg-red-700': isInWatchlist(item.id, activeTab), 'bg-purple-600 hover:bg-purple-700': !isInWatchlist(item.id, activeTab), 'opacity-50 cursor-not-allowed': watchlistLoading[getItemKey(item.id, activeTab)] }" class="w-full text-white px-2 py-1 rounded text-xs transition-colors">
                   <span v-if="watchlistLoading[getItemKey(item.id, activeTab)]">
                     Cargando...
                   </span>
@@ -163,17 +113,7 @@
       </div>
 
       <div v-if="getCurrentItems().length > 4" class="flex justify-center mt-4 gap-2">
-        <button
-          v-for="(_, index) in Math.max(1, getCurrentItems().length - 3)"
-          :key="index"
-          @click="currentIndex = index"
-          :class="[
-            'w-3 h-3 rounded-full transition-all',
-            currentIndex === index
-              ? 'bg-purple-500 scale-125'
-              : 'bg-gray-600 hover:bg-gray-500'
-          ]"
-        />
+        <button v-for="(_, index) in Math.max(1, getCurrentItems().length - 3)" :key="index" @click="currentIndex = index" :class="['w-3 h-3 rounded-full transition-all', currentIndex === index ? 'bg-purple-500 scale-125' : 'bg-gray-600 hover:bg-gray-500']"/>
       </div>
 
       <div class="mt-6 bg-gray-700 rounded-lg p-4">
@@ -197,11 +137,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import type { Movie, TVShow } from '../types/movies.ts';
 import { tmdbApi } from '../lib/tmdb';
 
-type TabType = 'movies' | 'tv';
+type TabType = 'movies' | 'series';
 type WatchlistKey = string;
 
 const activeTab = ref<TabType>('movies');
@@ -212,56 +152,44 @@ const loading = ref(true);
 const error = ref('');
 const watchlistItems = ref<Set<WatchlistKey>>(new Set());
 const watchlistLoading = ref<Record<WatchlistKey, boolean>>({});
+const { watchlistStore } = await import('../lib/watchlistStore');
 
 let storeUnsubscribe: (() => void) | null = null;
 
-const isDev = computed(() => {
-  return typeof window !== 'undefined' && window.location.hostname === 'localhost';
-});
+const getCurrentItems = () => 
+  activeTab.value === 'movies' ? topMovies.value : topTVShows.value;
 
-const getCurrentItems = (): (Movie | TVShow)[] => {
-  return activeTab.value === 'movies' ? topMovies.value : topTVShows.value;
-};
+const getTitle = (item: Movie | TVShow) => 
+  'title' in item ? item.title : item.name;
 
-const getTitle = (item: Movie | TVShow): string => {
-  return 'title' in item ? item.title : item.name;
-};
-
-const getReleaseYear = (item: Movie | TVShow): string => {
+const getReleaseYear = (item: Movie | TVShow) => {
   const date = 'release_date' in item ? item.release_date : item.first_air_date;
   return date ? new Date(date).getFullYear().toString() : 'N/A';
 };
 
-const getItemKey = (id: number, type: TabType): WatchlistKey => {
-  const normalizedType = type === 'movies' ? 'movie' : 'tv';
-  return `${id}-${normalizedType}`;
-};
+const getItemKey = (id: number, type: TabType) =>
+  `${id}-${type === 'movies' ? 'movie' : 'serie'}`;
 
-const isInWatchlist = (id: number, type: TabType): boolean => {
-  return watchlistItems.value.has(getItemKey(id, type));
-};
+const isInWatchlist = (id: number, type: TabType) =>
+  watchlistItems.value.has(getItemKey(id, type));
 
-const updateWatchlistState = async (): Promise<void> => {
+const updateWatchlistState = async () => {
   try {
-    const { watchlistStore } = await import('../lib/watchlistStore');
     const currentWatchlist = watchlistStore.getWatchlist();
-    const newSet = new Set<WatchlistKey>();
-    currentWatchlist.forEach(item => {
-      newSet.add(`${item.id}-${item.type}`);
-    });
-    watchlistItems.value = newSet;
+    watchlistItems.value = new Set(
+      currentWatchlist.map(item => `${item.id}-${item.type}`)
+    );
   } catch (error) {
-    // Error handling
+    alert('Error al actualizar el estado de la watchlist: '+ error);
   }
 };
 
-const handleWatchlistAction = async (item: Movie | TVShow, type: TabType): Promise<void> => {
+const handleWatchlistAction = async (item: Movie | TVShow, type: TabType) => {
   const itemKey = getItemKey(item.id, type);
   const normalizedType = type === 'movies' ? 'movie' : 'tv';
   
   try {
     watchlistLoading.value = { ...watchlistLoading.value, [itemKey]: true };
-    const { watchlistStore } = await import('../lib/watchlistStore');
     const isAlreadyInWatchlist = watchlistStore.isInWatchlist(item.id, normalizedType);
     
     if (isAlreadyInWatchlist) {
@@ -270,7 +198,7 @@ const handleWatchlistAction = async (item: Movie | TVShow, type: TabType): Promi
       watchlistStore.addToWatchlist(item, normalizedType);
     }
   } catch (error) {
-    // Error handling
+    alert('Error al actualizar la watchlist: ' + error);
   } finally {
     const newLoading = { ...watchlistLoading.value };
     delete newLoading[itemKey];
@@ -278,26 +206,26 @@ const handleWatchlistAction = async (item: Movie | TVShow, type: TabType): Promi
   }
 };
 
-const switchTab = (tab: TabType): void => {
+const switchTab = (tab: TabType) => {
   activeTab.value = tab;
   currentIndex.value = 0;
 };
 
-const nextSlide = (): void => {
+const nextSlide = () => {
   const items = getCurrentItems();
   if (items.length > 4) {
     currentIndex.value = (currentIndex.value + 1) % Math.max(1, items.length - 3);
   }
 };
 
-const prevSlide = (): void => {
+const prevSlide = () => {
   const items = getCurrentItems();
   if (items.length > 4) {
     currentIndex.value = (currentIndex.value - 1 + Math.max(1, items.length - 3)) % Math.max(1, items.length - 3);
   }
 };
 
-const fetchData = async (): Promise<void> => {
+const fetchData = async () => {
   try {
     loading.value = true;
     error.value = '';
@@ -320,7 +248,7 @@ const fetchData = async (): Promise<void> => {
 onMounted(async () => {
   await fetchData();
   await updateWatchlistState();
-  
+
   try {
     const { watchlistStore } = await import('../lib/watchlistStore');
     storeUnsubscribe = watchlistStore.subscribe(() => {
