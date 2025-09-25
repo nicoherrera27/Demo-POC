@@ -2,7 +2,6 @@
 // src/pages/index.astro
 import Layout from '../layouts/Layout.astro';
 import MovieCard from '../components/MovieCard.tsx';
-import SearchComponent from '../components/SearchComponent.vue';
 import TrendingWidget from '../components/TrendingWidget.svelte';
 import StatsWidget from '../components/StatsWidget.tsx';
 import TopRatedCarrousel from '../components/TopRatedCarrousel.vue';
@@ -27,11 +26,50 @@ const popularTVShows = popularTVResponse.results.slice(0, 6);
     <h1 class="text-4xl md:text-6xl font-bold text-white mb-4">
       Wobbly Seat 😵💺
     </h1>
+    <p class="text-xl text-gray-200 mb-6">
+      Usa la barra de búsqueda arriba para descubrir nuevas películas y series
+    </p>
   </section>
 
   <!-- Framework Demonstrations Grid -->
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-    <SearchComponent client:load />
+    <!-- Mensaje sobre la búsqueda -->
+    <div
+      class="bg-gradient-to-br from-blue-900 to-purple-900 p-6 rounded-lg shadow-lg"
+    >
+      <h2 class="text-2xl font-bold mb-4 text-blue-300">🔍 Búsqueda Rápida</h2>
+      <div class="space-y-4">
+        <p class="text-gray-200">
+          La barra de búsqueda en el header te permite encontrar rápidamente
+          películas y series.
+        </p>
+        <div class="bg-black bg-opacity-30 p-4 rounded-lg">
+          <h3 class="text-lg font-semibold text-blue-400 mb-2">Funciones:</h3>
+          <ul class="text-sm text-gray-300 space-y-1">
+            <li>
+              • <strong>Búsqueda instantánea</strong> con resultados en tiempo real
+            </li>
+            <li>
+              • <strong>Filtros por tipo</strong>: películas 🎬 o series 📺
+            </li>
+            <li>
+              • <strong>Agregar a watchlist</strong> directamente desde los resultados
+            </li>
+            <li>• <strong>Vista previa</strong> con ratings y años</li>
+          </ul>
+        </div>
+        <div class="text-center">
+          <div
+            class="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg"
+          >
+            <span>Prueba buscar "Marvel" o "Game of Thrones"</span>
+            <span>↗</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Componente de estadísticas -->
     <StatsWidget client:load />
   </div>
 
@@ -40,12 +78,12 @@ const popularTVShows = popularTVResponse.results.slice(0, 6);
     <TrendingWidget client:load />
   </div>
 
-  <!-- Solid Component - Top Rated Carousel -->
+  <!-- Vue Component - Top Rated Carousel -->
   <div class="mb-8" id="top-rated">
     <TopRatedCarrousel client:load />
   </div>
 
-  <!-- Static Content with React Components SS-->
+  <!-- Static Content with React Components -->
   <section class="mb-8">
     <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
       <h2 class="text-2xl font-bold mb-6 text-primary-400">

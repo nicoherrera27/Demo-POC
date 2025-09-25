@@ -1,3 +1,7 @@
+---
+import SearchBar from './SearchComponent.vue';
+---
+
 <nav class="bg-gray-800 p-4 shadow-lg">
   <div class="container mx-auto flex justify-between items-center">
     <div class="flex items-center gap-6">
@@ -16,8 +20,13 @@
         </a>
       </div>
     </div>
-    <div class="text-sm text-gray-400">
-      Demo técnica con Astro + Vue + Svelte + Preact + React
+
+    <!-- Nueva SearchBar en el lado derecho -->
+    <div class="flex items-center gap-4">
+      <!-- Barra de búsqueda compacta -->
+      <SearchBar client:load />
+
+      <div class="text-sm text-gray-400 hidden xl:block">Demo técnica</div>
     </div>
   </div>
 </nav>
