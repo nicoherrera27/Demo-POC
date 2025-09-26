@@ -29,15 +29,15 @@ const popularTVShows = popularTVResponse.results.slice(0, 6);
   </div>
 
   <div class="mb-8">
-    <StatsWidget client:load />
+    <StatsWidget client:idle />
   </div>
 
   <div class="mb-8">
-    <TrendingWidget client:load />
+    <TrendingWidget client:visible />
   </div>
 
   <div class="mb-8" id="top-rated">
-    <TopRatedCarrousel client:load />
+    <TopRatedCarrousel client:visible />
   </div>
 
   <div class="mb-8">

@@ -11,7 +11,7 @@ export default defineConfig({
     preact({ compat: true }),
     svelte(),
     vue(),
-    tailwind()
+    tailwind(),
   ],
   output: 'static',
   vite: {
