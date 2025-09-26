@@ -11,22 +11,16 @@
   },
   "dependencies": {
     "@astrojs/preact": "^3.0.1",
-<<<<<<< HEAD
     "@astrojs/react": "^4.4.0",
     "@astrojs/solid-js": "^5.1.1",
-=======
->>>>>>> 8b16afdfdd9ea25b07c9c2b78d4aa13e6661dffb
     "@astrojs/svelte": "^5.0.3",
     "@astrojs/tailwind": "^5.0.2",
     "@astrojs/vue": "^4.0.3",
     "astro": "^4.0.1",
     "preact": "^10.19.2",
-<<<<<<< HEAD
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "solid-js": "^1.9.9",
-=======
->>>>>>> 8b16afdfdd9ea25b07c9c2b78d4aa13e6661dffb
     "svelte": "^4.2.8",
     "tailwindcss": "^3.3.6",
     "vue": "^3.3.8"

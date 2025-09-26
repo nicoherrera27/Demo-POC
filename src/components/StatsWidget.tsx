@@ -192,13 +192,9 @@ export default function StatsWidget() {
             <h3 class="text-lg font-semibold text-purple-400 mb-3">Generos Populares</h3>
             <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
               {stats.topGenres.map((genre, index) => (
-<<<<<<< HEAD
                 <div 
                   key={genre}
                 >
-=======
-                <div key={genre} class="bg-gray-600 px-3 py-2 rounded-lg text-sm text-center hover:bg-gray-500 transition-colors">
->>>>>>> 8b16afdfdd9ea25b07c9c2b78d4aa13e6661dffb
                   <span class="font-medium">#{index + 1}</span> {genre}
                 </div>
               ))}
