@@ -99,7 +99,7 @@ export default function StatsWidget() {
   return (
     <div class="bg-gray-800 p-6 rounded-lg shadow-lg">
       <h2 class="text-2xl font-bold mb-6 text-primary-400">
-        Estadisticas (Preact Component)
+        Estadisticas
       </h2>
 
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">

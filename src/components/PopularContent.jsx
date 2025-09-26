@@ -95,7 +95,7 @@ export default function PopularContent({ popularMovies, popularTVShows }) {
     <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-primary-400">
-          🔥 Contenido Popular (React Component)
+          🔥 Contenido Popular 
         </h2>
         
         <div className="flex gap-2">

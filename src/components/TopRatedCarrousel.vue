@@ -2,7 +2,7 @@
   <div class="bg-gradient-to-br from-gray-800 via-gray-900 to-black p-6 rounded-lg shadow-lg">
     <div class="flex items-center justify-between mb-6">
       <h2 class="text-2xl font-bold text-purple-400">
-        🏆 Mejor Valorados (Vue Component)
+        🏆 Mejor Valorados
       </h2>
       
       <div class="flex gap-2">

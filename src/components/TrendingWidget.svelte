@@ -37,7 +37,7 @@
 
 <div class="bg-gradient-to-r from-purple-900 to-blue-900 p-6 rounded-lg shadow-lg">
   <div class="flex items-center justify-between mb-6">
-    <h2 class="text-2xl font-bold text-white">📈 Tendencias (Svelte Component)</h2>
+    <h2 class="text-2xl font-bold text-white">📈 Tendencias</h2>
     
     <div class="flex gap-2">
       <button

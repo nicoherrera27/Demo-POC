@@ -3,7 +3,7 @@
   import type { WatchlistItem, WatchlistStats } from '../lib/watchlistStore';
 
   type FilterType = 'all' | 'unwatched' | 'watched' | 'movie' | 'tv';
-  type SortType = 'dateAdded' | 'rating' | 'title' | 'priority';
+  type SortType = 'dateAdded' | 'rating' | 'title' ;
 
   let watchlist: WatchlistItem[] = [];
   let stats: WatchlistStats = {
@@ -20,11 +20,9 @@
   let sortBy: SortType = 'dateAdded';
   let isInitialized = false;
 
-  // Variables para cleanup
-  let unsubscribe: (() => void) | null = null;
-  let refreshInterval: ReturnType<typeof setInterval> | null = null;
 
-  // Computed para items filtrados
+  let unsubscribe: (() => void) | null = null;
+
   $: filteredItems = (() => {
     let items = [...watchlist];
     
@@ -50,14 +48,6 @@
         break;
       case 'title':
         items.sort((a, b) => a.title.localeCompare(b.title));
-        break;
-      case 'priority':
-        const priorityOrder = { high: 3, medium: 2, low: 1 };
-        items.sort((a, b) => {
-          const priorityDiff = priorityOrder[b.priority] - priorityOrder[a.priority];
-          if (priorityDiff !== 0) return priorityDiff;
-          return new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime();
-        });
         break;
       default:
         items.sort((a, b) => new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime());
@@ -108,15 +98,6 @@
     }
   };
 
-  const updateNotes = async (id: number, type: 'movie' | 'tv', notes: string): Promise<void> => {
-    try {
-      const { watchlistStore } = await import('../lib/watchlistStore');
-      watchlistStore.updateNotes(id, type, notes);
-    } catch (error) {
-      console.error('Svelte: Error updating notes:', error);
-    }
-  };
-
   onMount(async () => {
     await updateFromStore();
     
@@ -143,7 +124,7 @@
 <div class="bg-gradient-to-br from-green-900 via-teal-900 to-blue-900 p-6 rounded-lg shadow-lg">
   <div class="flex items-center justify-between mb-6">
     <h2 class="text-2xl font-bold text-green-300">
-      Mi Lista (Svelte Component)
+      Mi Lista
     </h2>
     
     <div class="flex gap-2">
@@ -161,7 +142,6 @@
         class="bg-gray-700 text-white px-3 py-1 rounded text-sm border border-gray-600"
       >
         <option value="dateAdded">Fecha agregada</option>
-        <option value="priority">Prioridad</option>
         <option value="rating">Rating</option>
         <option value="title">Título</option>
       </select>
@@ -286,11 +266,9 @@
       <div class="text-gray-300">
         {stats.movies} películas | {stats.tvShows} series | {stats.watched}/{stats.total} vistas
       </div>
-      <div class="text-green-300 font-medium">
-        Svelte Component
-      </div>
     </div>
   </div>
+  
 </div>
 
 <style>
