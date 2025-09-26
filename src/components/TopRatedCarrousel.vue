@@ -137,9 +137,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import type { Movie, TVShow } from '../types/movies.ts';
 import { tmdbApi } from '../lib/tmdb';
+import { watchlistStore } from '../lib/watchlistStore'
 
 type TabType = 'movies' | 'series';
 type WatchlistKey = string;
@@ -152,7 +153,6 @@ const loading = ref(true);
 const error = ref('');
 const watchlistItems = ref<Set<WatchlistKey>>(new Set());
 const watchlistLoading = ref<Record<WatchlistKey, boolean>>({});
-const { watchlistStore } = await import('../lib/watchlistStore');
 
 let storeUnsubscribe: (() => void) | null = null;
 
@@ -250,7 +250,6 @@ onMounted(async () => {
   await updateWatchlistState();
 
   try {
-    const { watchlistStore } = await import('../lib/watchlistStore');
     storeUnsubscribe = watchlistStore.subscribe(() => {
       updateWatchlistState();
     });

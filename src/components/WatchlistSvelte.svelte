@@ -1,6 +1,8 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import type { WatchlistItem, WatchlistStats } from '../lib/watchlistStore';
+  import { watchlistStore } from '../lib/watchlistStore'
+
 
   type FilterType = 'all' | 'unwatched' | 'watched' | 'movie' | 'tv';
   type SortType = 'dateAdded' | 'rating' | 'title' ;
@@ -65,7 +67,6 @@
 
   const updateFromStore = async (): Promise<void> => {
     try {
-      const { watchlistStore } = await import('../lib/watchlistStore');
       const currentWatchlist = watchlistStore.getWatchlist();
       const currentStats = watchlistStore.getStats();
     
@@ -82,7 +83,6 @@
 
   const toggleWatched = async (id: number, type: 'movie' | 'tv'): Promise<void> => {
     try {
-      const { watchlistStore } = await import('../lib/watchlistStore');
       watchlistStore.toggleWatched(id, type);
     } catch (error) {
       alert('Svelte: Error toggling watched:' + error);
@@ -91,7 +91,6 @@
 
   const removeFromWatchlist = async (id: number, type: 'movie' | 'tv'): Promise<void> => {
     try {
-      const { watchlistStore } = await import('../lib/watchlistStore');
       watchlistStore.removeFromWatchlist(id, type);
     } catch (error) {
       alert('Svelte: Error removing item:' + error);
@@ -102,7 +101,6 @@
     await updateFromStore();
     
     try {
-      const { watchlistStore } = await import('../lib/watchlistStore');
       
       unsubscribe = watchlistStore.subscribe((newWatchlist: WatchlistItem[], newStats: WatchlistStats) => {
         watchlist = [...newWatchlist];
@@ -270,12 +268,3 @@
   </div>
   
 </div>
-
-<style>
-  .line-clamp-2 {
-    display: -webkit-box;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-</style>

@@ -109,6 +109,8 @@
 import { ref, onMounted, onUnmounted} from 'vue'
 import type { Movie, TVShow } from '../types/movies.ts'
 import { tmdbApi } from '../lib/tmdb'
+import { watchlistStore } from '../lib/watchlistStore'
+
 
 type SearchType = 'movie' | 'tv';
 type WatchlistKey = string; 
@@ -121,11 +123,8 @@ const showResults = ref(false)
 const searchInput = ref<HTMLInputElement>()
 const preventBlur = ref(false) 
 
-
 const watchlistItems = ref<Set<WatchlistKey>>(new Set())
 const watchlistLoading = ref<Record<WatchlistKey, boolean>>({})
-
-const { watchlistStore } = await import('../lib/watchlistStore')
 
 
 let searchTimeout: ReturnType<typeof setTimeout>
@@ -243,13 +242,12 @@ onMounted(async () => {
   await updateWatchlistState()
   
   try {
-    storeUnsubscribe = watchlistStore.subscribe(() => {
+    storeUnsubscribe = watchlistStore.subscribe(() => {  
       updateWatchlistState()
     })
   } catch (error) {
-    alert('Vue SearchBar: Error subscribing to store: '+ error)
+    alert('Vue SearchBar: Error subscribing to store:' + error) 
   }
-  
 })
 
 onUnmounted(() => {
@@ -263,16 +261,10 @@ onUnmounted(() => {
   }
 })
 
-
 </script>
 
 <style scoped>
-.line-clamp-1 {
-  display: -webkit-box;
-  line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
+
 
 /* Scrollbar personalizado */
 .overflow-y-auto::-webkit-scrollbar {

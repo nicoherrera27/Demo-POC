@@ -16,9 +16,7 @@ const popularMovies = popularMoviesResponse.results.slice(0, 6);
 const popularTVShows = popularTVResponse.results.slice(0, 6);
 ---
 
-
 <Layout title="Woobly Seat - Películas y Series">
-
   <div
     class="bg-gradient-to-r from-primary-900 via-purple-900 to-blue-900 rounded-lg p-8 mb-8 text-center"
   >
@@ -43,15 +41,14 @@ const popularTVShows = popularTVResponse.results.slice(0, 6);
   </div>
 
   <div class="mb-8">
-    <PopularContent 
-      popularMovies={popularMovies} 
-      popularTVShows={popularTVShows} 
-      client:visible 
+    <PopularContent
+      popularMovies={popularMovies}
+      popularTVShows={popularTVShows}
+      client:visible
     />
   </div>
 
   <section class="mb-8">
-
     <FrameworksDesc />
   </section>
 </Layout>
@@ -63,12 +60,9 @@ const popularTVShows = popularTVResponse.results.slice(0, 6);
     }
   }
 
-  import('../lib/watchlistStore')
-    .then(({ watchlistStore, WatchlistEvents }) => {
-      WatchlistEvents.setupGlobalListeners();
-      window.watchlistStore = watchlistStore;
-    })
-    .catch((error) => {
-      alert('Error loading watchlist store:' + error);
-    });
+  import { watchlistStore } from '../lib/watchlistStore';
+
+  if (typeof window !== 'undefined') {
+    window.watchlistStore = watchlistStore;
+  }
 </script>

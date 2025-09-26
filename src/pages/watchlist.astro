@@ -69,14 +69,17 @@ import FrameworksDesc from '../components/FrameworksDesc.astro';
 </Layout>
 
 <script>
-  import('../lib/watchlistStore')
-    .then(({ watchlistStore, WatchlistEvents }) => {
-      WatchlistEvents.setupGlobalListeners();
-      window.watchlistStore = watchlistStore;
-    })
-    .catch((error) => {
-      alert('Error loading watchlist store:' + error);
-    });
+  declare global {
+    interface Window {
+      watchlistStore: any;
+    }
+  }
+
+  import { watchlistStore } from '../lib/watchlistStore';
+
+  if (typeof window !== 'undefined') {
+    window.watchlistStore = watchlistStore;
+  }
 </script>
 
 <style>
