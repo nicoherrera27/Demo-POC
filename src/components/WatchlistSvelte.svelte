@@ -183,7 +183,7 @@
                 <img src="https://image.tmdb.org/t/p/w92{item.poster_path}" alt={item.title} class="w-16 h-24 object-cover rounded border border-gray-600"/>
               {:else}
                 <div class="w-16 h-24 bg-gray-600 rounded flex items-center justify-center">
-                  <span class="text-2xl">{item.type === 'movie' ? '🎬' : '📺'}</span>
+                  <span class="text-2xl">{item.type === 'movie' ? 'Pelicula' : 'Serie'}</span>
                 </div>
               {/if}
             </div>
@@ -198,7 +198,7 @@
                   <div class="flex items-center gap-3 text-xs text-gray-400 mb-2">
                     <span>{item.year}</span>
                     <span>⭐{item.vote_average.toFixed(1)}</span>
-                    <span>{item.type === 'movie' ? '🎬' : '📺'}</span>
+                    <span>{item.type === 'movie' ? 'Pelicula' : 'Serie'}</span>
                     <span class="{item.isWatched ? 'text-green-400' : 'text-yellow-400'}">
                       {item.isWatched ? '✓ Vista' : 'Pendiente'}
                     </span>
@@ -244,7 +244,7 @@
         {#if !isInitialized}
           Inicializando componente...
         {:else if stats.total === 0}
-          Tu watchlist está vacía
+          Tu lista esta vacia
         {:else}
           No hay elementos para el filtro seleccionado
         {/if}

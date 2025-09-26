@@ -90,11 +90,11 @@
       </div>
       
       <button class="absolute left-0 top-1/2 transform -translate-y-1/2 z-20 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-3 rounded-full transition-all" on:click={() => { const maxSlides = activeTab === 'movies' ? trendingMovies.length : trendingTVShows.length; currentSlide = (currentSlide - 1 + Math.max(1, maxSlides - 2)) % Math.max(1, maxSlides - 2);}}>
-        ◀
+        ◄
       </button>
 
       <button class="absolute right-0 top-1/2 transform -translate-y-1/2 z-20 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-3 rounded-full transition-all" on:click={() => { const maxSlides = activeTab === 'movies' ? trendingMovies.length : trendingTVShows.length; currentSlide = (currentSlide + 1) % Math.max(1, maxSlides - 2);}}>
-        ▶ 
+        ► 
       </button>      
 
       <div class="flex justify-center mt-4 gap-2">

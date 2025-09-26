@@ -95,7 +95,7 @@ export default function PopularContent({ popularMovies, popularTVShows }) {
     <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-primary-400">
-          🔥 Contenido Popular 
+          🔥 Populares 
         </h2>
         
         <div className="flex gap-2">
@@ -152,7 +152,7 @@ export default function PopularContent({ popularMovies, popularTVShows }) {
                   {item.vote_average.toFixed(1)}
                 </div>
                 <div className="absolute top-2 left-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs font-medium">
-                  {activeTab === 'movie' ? '🎬' : '📺'}
+                  {activeTab === 'movie' ? 'Pelicula' : 'Serie'}
                 </div>
               </div>
               

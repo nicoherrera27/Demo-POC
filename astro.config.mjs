@@ -14,12 +14,7 @@ export default defineConfig({
     tailwind()
   ],
   output: 'static',
-  vite: {
-    plugins: [visualizer({
-        emitFile: true,
-        filename: "stats.html",
-    })]
-  },
+
   devToolbar: {
     enabled: true
   },
